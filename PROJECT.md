@@ -96,7 +96,7 @@ A RESTful API for school financial management. Handles student payments, donor/v
 
 #### Milestone 5 — Transactions
 - [ ] Create transaction with line items (TransactionItems)
-- [ ] Polymorphic link to Student or Payer
+- [ ] Nullable `StudentId?` + `PayerId?` on Transaction — two explicit FK columns (one must be set, enforce via check constraint or service validation)
 - [ ] `CashLedgerId` (required) — specifies which cash/bank ledger account is used
 - [ ] Auto-create journal entries (double-entry); validate debit sum = credit sum before saving
 - [ ] Save transaction + items + journal entries inside a single DB transaction
