@@ -191,7 +191,7 @@ Handled globally in `ExceptionHandlingMiddleware`:
 | Email | nvarchar(255)? | |
 | FinancialYearStart | date | |
 | FinancialYearEnd | date | |
-| Currency | nvarchar(10) | default "PHP" |
+| Currency | nvarchar(10) | default "MYR" |
 | Timezone | nvarchar(100) | |
 | BankName | nvarchar(255)? | |
 | BankAccountName | nvarchar(255)? | |

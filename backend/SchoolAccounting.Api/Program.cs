@@ -11,6 +11,10 @@ using SchoolAccounting.Api.Features.Classes;
 using SchoolAccounting.Api.Features.Ledgers;
 using SchoolAccounting.Api.Features.Categories;
 using SchoolAccounting.Api.Features.BusinessInfo;
+using SchoolAccounting.Api.Features.Students;
+using SchoolAccounting.Api.Features.Payers;
+using SchoolAccounting.Api.Features.Transactions;
+using SchoolAccounting.Api.Features.JournalEntries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +40,11 @@ builder.Services.AddScoped<ClassService>();
 builder.Services.AddScoped<LedgerService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<BusinessInfoService>();
+builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<PayerService>();
+builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<TransactionReversalService>();
+builder.Services.AddScoped<JournalEntryService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

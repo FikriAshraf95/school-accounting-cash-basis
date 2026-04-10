@@ -9,7 +9,7 @@ public class UpdateBusinessInfoRequest
     public string? Email { get; set; }
     public DateOnly FinancialYearStart { get; set; }
     public DateOnly FinancialYearEnd { get; set; }
-    public string? Currency { get; set; } = "PHP";
+    public string? Currency { get; set; } = "MYR";
     public string Timezone { get; set; } = string.Empty;
     public string? BankName { get; set; }
     public string? BankAccountName { get; set; }

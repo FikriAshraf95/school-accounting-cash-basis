@@ -49,7 +49,7 @@ public class BusinessInfoService
         businessInfo.Email = request.Email;
         businessInfo.FinancialYearStart = request.FinancialYearStart;
         businessInfo.FinancialYearEnd = request.FinancialYearEnd;
-        businessInfo.Currency = request.Currency ?? "PHP";
+        businessInfo.Currency = request.Currency ?? "MYR";
         businessInfo.Timezone = request.Timezone;
         businessInfo.BankName = request.BankName;
         businessInfo.BankAccountName = request.BankAccountName;
