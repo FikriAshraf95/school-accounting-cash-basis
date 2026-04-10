@@ -90,21 +90,21 @@ A RESTful API for school financial management. Handles student payments, donor/v
 - Audit trail: every transaction records who created/updated it.
 
 #### Milestone 4 — Students & Payers
-- [ ] **Students** — CRUD, soft delete, pagination + filtering (`/api/v1/students`)
-- [ ] **Payers** — CRUD, soft delete, pagination + filtering (`/api/v1/payers`)
-- [ ] Student → Class assignment endpoint
+- [x] **Students** — CRUD, soft delete, pagination + filtering (`/api/v1/students`)
+- [x] **Payers** — CRUD, soft delete, pagination + filtering (`/api/v1/payers`)
+- [x] Student → Class assignment endpoint
 
 #### Milestone 5 — Transactions
-- [ ] Create transaction with line items (TransactionItems)
-- [ ] Nullable `StudentId?` + `PayerId?` on Transaction — two explicit FK columns (one must be set, enforce via check constraint or service validation)
-- [ ] `CashLedgerId` (required) — specifies which cash/bank ledger account is used
-- [ ] Auto-create journal entries (double-entry); validate debit sum = credit sum before saving
-- [ ] Save transaction + items + journal entries inside a single DB transaction
-- [ ] Update ledger balances and student/payer balances
-- [ ] Same-day edit / delete restriction
-- [ ] `POST /api/v1/transactions/{id}/reverse` — reversal marks original `IsReversed = true`; does not soft-delete original
-- [ ] Period lock: reject transactions dated in a closed year
-- [ ] `CreatedBy` / `UpdatedBy` populated from authenticated user on all transaction writes
+- [x] Create transaction with line items (TransactionItems)
+- [x] Nullable `StudentId?` + `PayerId?` on Transaction — two explicit FK columns (one must be set, enforce via check constraint or service validation)
+- [x] `CashLedgerId` (required) — specifies which cash/bank ledger account is used
+- [x] Auto-create journal entries (double-entry); validate debit sum = credit sum before saving
+- [x] Save transaction + items + journal entries inside a single DB transaction
+- [x] Update ledger balances and student/payer balances
+- [x] Same-day edit / delete restriction
+- [x] `POST /api/v1/transactions/{id}/reverse` — reversal marks original `IsReversed = true`; does not soft-delete original
+- [x] Period lock: reject transactions dated in a closed year
+- [x] `CreatedBy` / `UpdatedBy` populated from authenticated user on all transaction writes
 
 ---
 
@@ -183,25 +183,27 @@ SchoolAccounting.Api/
     │   ├── UserManagementController.cs
     │   ├── UserManagementService.cs
     │   └── UserManagementDto.cs
-    ├── Students/
+    ├── Students/                 # CRUD + report + CSV import
     │   ├── StudentsController.cs
     │   ├── StudentService.cs
-    │   ├── StudentDto.cs         # Requests + Responses in one file
-    │   └── StudentMappings.cs    # static ToResponse() / ToEntity() extension methods
-    ├── Transactions/             # most complex feature — split services allowed
+    │   └── StudentDto.cs
+    ├── Payers/                   # CRUD for donors/vendors/suppliers
+    │   ├── PayersController.cs
+    │   ├── PayerService.cs
+    │   └── PayerDto.cs
+    ├── Transactions/             # double-entry bookkeeping core
     │   ├── TransactionsController.cs
     │   ├── TransactionService.cs
     │   ├── TransactionReversalService.cs
-    │   ├── YearEndCloseService.cs
-    │   ├── TransactionRequests.cs
-    │   ├── TransactionResponses.cs
-    │   └── TransactionMappings.cs
+    │   └── TransactionDto.cs
+    ├── JournalEntries/           # audit trail / ledger activity
+    │   ├── JournalEntriesController.cs
+    │   ├── JournalEntryService.cs
+    │   └── JournalEntryDto.cs
     ├── Ledgers/
     ├── Categories/
     ├── Grades/
     ├── Classes/
-    ├── Payers/
-    ├── JournalEntries/
     └── BusinessInfo/
 ```
 
