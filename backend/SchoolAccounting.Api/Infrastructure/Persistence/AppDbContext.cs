@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<TransactionItem> TransactionItems { get; set; } = null!;
     public DbSet<JournalEntry> JournalEntries { get; set; } = null!;
     public DbSet<ClosedYear> ClosedYears { get; set; } = null!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -311,6 +312,23 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // AuditLogs
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("AuditLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).UseIdentityColumn();
+            entity.Property(e => e.EntityName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.EntityId).HasMaxLength(50);
+            entity.Property(e => e.Action).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.UserId).HasMaxLength(50);
+            entity.Property(e => e.UserName).HasMaxLength(255);
+            entity.Property(e => e.Timestamp).IsRequired();
+
+            entity.HasIndex(e => new { e.EntityName, e.EntityId });
+            entity.HasIndex(e => e.Timestamp);
         });
 
         // JournalEntries

@@ -5,6 +5,7 @@ using Scalar.AspNetCore;
 using SchoolAccounting.Api.Infrastructure.Auth;
 using SchoolAccounting.Api.Infrastructure.Middleware;
 using SchoolAccounting.Api.Infrastructure.Persistence;
+using Microsoft.Extensions.Caching.Memory;
 using SchoolAccounting.Api.Features.Auth;
 using SchoolAccounting.Api.Features.UserManagement;
 using SchoolAccounting.Api.Features.Grades;
@@ -32,9 +33,19 @@ builder.Services.AddOpenApi();
 // Add FluentValidation validators
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// Add EF Core
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Required for AuditInterceptor to read the current user from HTTP context
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<AuditInterceptor>();
+
+// Add EF Core — interceptor wired in via service provider
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+});
+
+// Add in-memory cache for reference data (Categories, etc.)
+builder.Services.AddMemoryCache();
 
 // Add custom authentication
 builder.Services.AddAuthentication("Bearer")

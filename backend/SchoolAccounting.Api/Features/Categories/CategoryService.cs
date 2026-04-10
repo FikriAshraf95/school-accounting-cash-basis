@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SchoolAccounting.Api.Common;
 using SchoolAccounting.Api.Common.Exceptions;
 using SchoolAccounting.Api.Infrastructure.Persistence;
@@ -8,42 +9,43 @@ namespace SchoolAccounting.Api.Features.Categories;
 public class CategoryService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IMemoryCache _cache;
+    private const string CacheKey = "categories";
 
-    public CategoryService(AppDbContext dbContext)
+    public CategoryService(AppDbContext dbContext, IMemoryCache cache)
     {
         _dbContext = dbContext;
+        _cache = cache;
     }
 
     public async Task<PagedResult<CategoryResponse>> GetCategoriesAsync(string? type, bool? isActive)
     {
-        var query = _dbContext.Categories
-            .Include(c => c.Ledger)
-            .AsQueryable();
-
-        if (!string.IsNullOrEmpty(type))
+        // Fetch all from DB (or cache), then filter in memory.
+        // Categories are reference data that changes rarely — 5-minute TTL is safe.
+        if (!_cache.TryGetValue(CacheKey, out List<CategoryResponse>? allCategories))
         {
-            query = query.Where(c => c.Type == type.ToLower());
+            var categories = await _dbContext.Categories
+                .AsNoTracking()
+                .Include(c => c.Ledger)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+            allCategories = categories.Select(c => c.ToResponse()).ToList();
+            _cache.Set(CacheKey, allCategories, TimeSpan.FromMinutes(5));
         }
 
-        if (isActive.HasValue)
-        {
-            query = query.Where(c => c.IsActive == isActive.Value);
-        }
-
-        var total = await query.CountAsync();
-
-        var categories = await query
-            .OrderBy(c => c.Name)
-            .ToListAsync();
+        var query = allCategories!.AsQueryable();
+        if (!string.IsNullOrEmpty(type)) query = query.Where(c => c.Type == type.ToLower());
+        if (isActive.HasValue) query = query.Where(c => c.IsActive == isActive.Value);
+        var list = query.ToList();
 
         return new PagedResult<CategoryResponse>
         {
-            Data = categories.Select(c => c.ToResponse()).ToList(),
+            Data = list,
             Meta = new PagedResultMeta
             {
-                Total = total,
+                Total = list.Count,
                 Page = 1,
-                PerPage = total,
+                PerPage = list.Count,
                 LastPage = 1
             }
         };
@@ -88,6 +90,7 @@ public class CategoryService
 
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
+        _cache.Remove(CacheKey);
 
         // Reload with ledger for response
         await _dbContext.Entry(category).Reference(c => c.Ledger).LoadAsync();
@@ -117,6 +120,7 @@ public class CategoryService
         category.UpdatedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
+        _cache.Remove(CacheKey);
 
         return category.ToResponse();
     }
@@ -134,6 +138,7 @@ public class CategoryService
 
         _dbContext.Categories.Remove(category);
         await _dbContext.SaveChangesAsync();
+        _cache.Remove(CacheKey);
     }
 
     private static bool IsValidCategoryType(string type)
