@@ -28,7 +28,7 @@ async function loginRequest() {
   loader.value = true;
 
   const result = await auth.login({
-    username: data.value.username,
+    email: data.value.email,
     password: data.value.password,
   });
 
@@ -39,7 +39,7 @@ async function loginRequest() {
     toast({
       variant: "destructive",
       title: "Login Failed",
-      description: result.message || "Invalid username or password. Please try again.",
+      description: result.message || "Invalid email or password. Please try again.",
     });
     document.getElementById("password")?.focus();
     validationErr.value = true;
@@ -87,8 +87,8 @@ let BorderError = "border-rose-500";
               <p class="text-sm font-semibold text-black my-3">Sign in to your account.</p>
             </div>
             <div class="grid gap-4 mt-5">
-              <Label for="username" :class="cn('', validationErr ? TextError : '')" class="text-black">Username</Label>
-              <Input v-model="data.username" type="text" required @keyup.enter="loginRequest()" 
+              <Label for="email" :class="cn('', validationErr ? TextError : '')" class="text-black">Username</Label>
+              <Input v-model="data.email" type="text" required @keyup.enter="loginRequest()" 
                 :class="cn('', validationErr ? BorderError : '')" v-on:keyup="handleInputValue"
                 v-on:focus="handleInputValue" />
             </div>

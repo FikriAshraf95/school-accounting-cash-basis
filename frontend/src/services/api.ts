@@ -11,18 +11,8 @@ const pendingRequests = new Map<string, AbortController>();
 // Debug flag - set to false in production
 const DEBUG_REQUESTS = import.meta.env.VITE_API_DEBUG_MODE === 'true';
 
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return decodeURIComponent(parts.pop()!.split(";")[0]);
-  return null;
-}
-
 // Create an Axios instance
-const axiosInstance = axios.create({
-  withCredentials: true,
-  withXSRFToken: true,
-});
+const axiosInstance = axios.create();
 
 // Response interceptor for handling auth errors
 axiosInstance.interceptors.response.use(
@@ -48,16 +38,7 @@ axiosInstance.interceptors.response.use(
 );
 
 export const useAPI = (baseUrl?: string) => {
-  const base = baseUrl || import.meta.env.VITE_BACKEND_URL;
   const baseAPI = baseUrl || import.meta.env.VITE_API_BASE_URL;
-
-  async function getCsrfCookie() {
-    try {
-      await axiosInstance.get(`${base}/sanctum/csrf-cookie`);
-    } catch (error) {
-      console.warn('CSRF cookie request failed (optional for token auth):', error);
-    }
-  }
 
   const useFetch = async <T>({
     url,
@@ -79,11 +60,8 @@ export const useAPI = (baseUrl?: string) => {
     cancelPrevious?: boolean;
   }) => {
     const auth = useAuthStore();
-    const xsrfToken = getCookie("XSRF-TOKEN");
 
-    const fullUrl = url.includes('/sanctum') || url.includes('/broadcasting')
-      ? `${base}${url}`
-      : `${baseAPI}${url}`;
+    const fullUrl = `${baseAPI}${url}`;
 
     // Create a unique key for this request
     const requestKey = `${method}:${fullUrl}`;
@@ -114,7 +92,6 @@ export const useAPI = (baseUrl?: string) => {
           "Content-Type": "application/json",
           "Accept": "application/json",
           ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
-          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
           ...(config?.headers ?? {}),
         },
         ...(params ? { params } : {}),
@@ -130,19 +107,15 @@ export const useAPI = (baseUrl?: string) => {
           response = await axiosInstance.get<T>(fullUrl, configurations);
           break;
         case "POST":
-          await getCsrfCookie();
           response = await axiosInstance.post<T>(fullUrl, requestBody, configurations);
           break;
         case "PUT":
-          await getCsrfCookie();
           response = await axiosInstance.put<T>(fullUrl, requestBody, configurations);
           break;
         case "DELETE":
-          await getCsrfCookie();
           response = await axiosInstance.delete<T>(fullUrl, configurations);
           break;
         case "PATCH":
-          await getCsrfCookie();
           response = await axiosInstance.patch<T>(fullUrl, requestBody, configurations);
           break;
         default:
@@ -214,8 +187,6 @@ export const useAPI = (baseUrl?: string) => {
     return useFetch<T>({ url, requestBody, params, method: "PATCH", config, cancelPrevious });
   };
 
-  useFetch.getCsrfCookie = getCsrfCookie;
-
   return useFetch;
 };
 
@@ -233,12 +204,8 @@ export const cancelAllRequests = () => {
 
 // Helper function to cancel specific request by key
 export const cancelRequest = (method: HttpMethod, url: string, baseUrl?: string) => {
-  const base = baseUrl || import.meta.env.VITE_BACKEND_URL;
   const baseAPI = baseUrl || import.meta.env.VITE_API_BASE_URL;
-
-  const fullUrl = url.includes('/sanctum')
-    ? `${base}${url}`
-    : `${baseAPI}${url}`;
+  const fullUrl = `${baseAPI}${url}`;
 
   const requestKey = `${method}:${fullUrl}`;
   const controller = pendingRequests.get(requestKey);
