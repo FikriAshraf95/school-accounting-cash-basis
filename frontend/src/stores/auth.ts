@@ -58,7 +58,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // Login with Sanctum
-    async login(payload: { username: string; password: string }) {
+    async login(payload: { email: string; password: string }) {
       this.isLoading = true;
       const api = useAPI();
 
