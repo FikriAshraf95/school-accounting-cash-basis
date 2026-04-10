@@ -14,7 +14,9 @@ public static class DbInitializer
         var adminExists = await dbContext.Users.AnyAsync(u => u.Role == AppRole.Admin);
         if (!adminExists)
         {
-            var adminPassword = configuration["AdminSeedPassword"] ?? "ChangeMe123!";
+            var adminPassword = configuration["AdminSeedPassword"]
+                ?? throw new InvalidOperationException(
+                    "AdminSeedPassword is not configured. Set it via the ADMINSEEDPASSWORD environment variable or appsettings.");
             var adminUser = new User
             {
                 Name = "Administrator",

@@ -51,7 +51,7 @@ public class BearerTokenAuthHandler : AuthenticationHandler<AuthenticationScheme
             return AuthenticateResult.Fail("Invalid token");
         }
 
-        if (accessToken.ExpiresAt.HasValue && accessToken.ExpiresAt.Value < DateTime.UtcNow)
+        if (!accessToken.ExpiresAt.HasValue || accessToken.ExpiresAt.Value < DateTime.UtcNow)
         {
             return AuthenticateResult.Fail("Token expired");
         }

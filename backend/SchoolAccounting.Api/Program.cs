@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using SchoolAccounting.Api.Infrastructure.Auth;
@@ -17,6 +18,7 @@ using SchoolAccounting.Api.Features.Transactions;
 using SchoolAccounting.Api.Features.JournalEntries;
 using SchoolAccounting.Api.Common.Validation;
 using FluentValidation;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,16 +56,31 @@ builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<TransactionReversalService>();
 builder.Services.AddScoped<JournalEntryService>();
 
-// Add CORS
+// Add CORS - origins driven from config; restrict methods and headers
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000"];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
+        policy.WithOrigins(corsOrigins)
+            .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
+            .WithHeaders("Authorization", "Content-Type", "Accept")
             .AllowCredentials();
     });
+});
+
+// Add rate limiting - auth endpoints: max 10 requests per minute per IP
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("auth", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 var app = builder.Build();
@@ -72,10 +89,12 @@ var app = builder.Build();
 app.MapOpenApi();
 app.MapScalarApiReference();
 
+app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors("AllowFrontend");
 
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
