@@ -6,6 +6,11 @@ using SchoolAccounting.Api.Infrastructure.Middleware;
 using SchoolAccounting.Api.Infrastructure.Persistence;
 using SchoolAccounting.Api.Features.Auth;
 using SchoolAccounting.Api.Features.UserManagement;
+using SchoolAccounting.Api.Features.Grades;
+using SchoolAccounting.Api.Features.Classes;
+using SchoolAccounting.Api.Features.Ledgers;
+using SchoolAccounting.Api.Features.Categories;
+using SchoolAccounting.Api.Features.BusinessInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +31,11 @@ builder.Services.AddAuthorization();
 // Add application services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserManagementService>();
+builder.Services.AddScoped<GradeService>();
+builder.Services.AddScoped<ClassService>();
+builder.Services.AddScoped<LedgerService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<BusinessInfoService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

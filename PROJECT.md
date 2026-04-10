@@ -71,11 +71,11 @@ A RESTful API for school financial management. Handles student payments, donor/v
 - Student-to-class assignment endpoint ready for Week 3.
 
 #### Milestone 3 — Reference Data
-- [ ] **Grades** — CRUD (`/api/v1/grades`)
-- [ ] **Classes** — CRUD + assign/remove students (`/api/v1/classes`)
-- [ ] **Ledgers** (Chart of Accounts) — CRUD + seed default accounts (`/api/v1/ledgers`)
-- [ ] **Categories** — CRUD linked to ledger (`/api/v1/categories`)
-- [ ] **Business Info** — single-record GET/PUT (`/api/v1/business-info`)
+- [x] **Grades** — CRUD (`/api/v1/grades`)
+- [x] **Classes** — CRUD + assign/remove students (`/api/v1/classes`)
+- [x] **Ledgers** (Chart of Accounts) — CRUD + seed default accounts (`/api/v1/ledgers`)
+- [x] **Categories** — CRUD linked to ledger (`/api/v1/categories`)
+- [x] **Business Info** — single-record GET/PUT (`/api/v1/business-info`)
 
 ---
 
