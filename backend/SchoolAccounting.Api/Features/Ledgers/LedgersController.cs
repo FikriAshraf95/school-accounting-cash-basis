@@ -55,4 +55,19 @@ public class LedgersController : ControllerBase
         await _ledgerService.DeleteLedgerAsync(id);
         return NoContent();
     }
+
+    [HttpGet("reports/trial-balance")]
+    public async Task<ActionResult<TrialBalanceResponse>> GetTrialBalance(
+        [FromQuery] int? year = null)
+    {
+        var result = await _ledgerService.GetTrialBalanceAsync(year);
+        return Ok(result);
+    }
+
+    [HttpGet("summary/{year}")]
+    public async Task<ActionResult<LedgerSummaryResponse>> GetLedgerSummary(int year)
+    {
+        var result = await _ledgerService.GetLedgerSummaryByYearAsync(year);
+        return Ok(result);
+    }
 }

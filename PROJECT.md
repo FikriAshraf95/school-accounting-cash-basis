@@ -119,10 +119,10 @@ A RESTful API for school financial management. Handles student payments, donor/v
 - Student transaction report filterable by grade and class.
 
 #### Milestone 6 — Reports
-- [ ] Journal entries list (`/api/v1/journal-entries`)
-- [ ] Trial balance (`/api/v1/ledgers/reports/trial-balance`)
-- [ ] Ledger summary by year (`/api/v1/ledgers/summary/{year}`)
-- [ ] Student transaction report by grade/class (`/api/v1/students/report`)
+- [x] Journal entries list (`/api/v1/journal-entries`)
+- [x] Trial balance (`/api/v1/ledgers/reports/trial-balance`)
+- [x] Ledger summary by year (`/api/v1/ledgers/summary/{year}`)
+- [x] Student transaction report by grade/class (`/api/v1/students/report`)
 
 ---
 

@@ -29,3 +29,55 @@ public class LedgerResponse
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
+
+public class TrialBalanceRequest
+{
+    public int? Year { get; set; }
+}
+
+public class TrialBalanceResponse
+{
+    public List<TrialBalanceItemResponse> Items { get; set; } = [];
+    public decimal TotalDebits { get; set; }
+    public decimal TotalCredits { get; set; }
+    public bool IsBalanced { get; set; }
+}
+
+public class TrialBalanceItemResponse
+{
+    public int LedgerId { get; set; }
+    public string LedgerCode { get; set; } = string.Empty;
+    public string LedgerName { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public decimal DebitAmount { get; set; }
+    public decimal CreditAmount { get; set; }
+}
+
+public class LedgerSummaryRequest
+{
+    public int Year { get; set; }
+}
+
+public class LedgerSummaryResponse
+{
+    public int Year { get; set; }
+    public List<LedgerSummaryItemResponse> Ledgers { get; set; } = [];
+    public decimal TotalAssets { get; set; }
+    public decimal TotalLiabilities { get; set; }
+    public decimal TotalEquity { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public decimal TotalExpenses { get; set; }
+}
+
+public class LedgerSummaryItemResponse
+{
+    public int LedgerId { get; set; }
+    public string LedgerCode { get; set; } = string.Empty;
+    public string LedgerName { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public decimal OpeningBalance { get; set; }
+    public decimal TotalDebits { get; set; }
+    public decimal TotalCredits { get; set; }
+    public decimal NetChange { get; set; }
+    public decimal ClosingBalance { get; set; }
+}
