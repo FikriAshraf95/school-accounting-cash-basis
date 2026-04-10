@@ -15,12 +15,20 @@ using SchoolAccounting.Api.Features.Students;
 using SchoolAccounting.Api.Features.Payers;
 using SchoolAccounting.Api.Features.Transactions;
 using SchoolAccounting.Api.Features.JournalEntries;
+using SchoolAccounting.Api.Common.Validation;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddOpenApi();
+
+// Add FluentValidation validators
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Add EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>

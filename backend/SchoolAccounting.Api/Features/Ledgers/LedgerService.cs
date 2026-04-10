@@ -14,8 +14,17 @@ public class LedgerService
         _dbContext = dbContext;
     }
 
-    public async Task<PagedResult<LedgerResponse>> GetLedgersAsync(string? type, bool? isActive)
+    public async Task<PagedResult<LedgerResponse>> GetLedgersAsync(
+        int page = 1,
+        int perPage = 15,
+        string? sortBy = null,
+        bool sortDesc = false,
+        string? type = null,
+        bool? isActive = null)
     {
+        // Clamp perPage to reasonable limits
+        perPage = Math.Clamp(perPage, 1, 100);
+
         var query = _dbContext.Ledgers
             .Where(l => l.DeletedAt == null)
             .AsQueryable();
@@ -30,11 +39,24 @@ public class LedgerService
             query = query.Where(l => l.IsActive == isActive.Value);
         }
 
+        // Apply sorting
+        query = sortBy?.ToLower() switch
+        {
+            "code" => sortDesc ? query.OrderByDescending(l => l.Code) : query.OrderBy(l => l.Code),
+            "name" => sortDesc ? query.OrderByDescending(l => l.Name) : query.OrderBy(l => l.Name),
+            "type" => sortDesc ? query.OrderByDescending(l => l.Type) : query.OrderBy(l => l.Type),
+            "balance" => sortDesc ? query.OrderByDescending(l => l.Balance) : query.OrderBy(l => l.Balance),
+            _ => sortDesc ? query.OrderByDescending(l => l.CreatedAt) : query.OrderBy(l => l.CreatedAt)
+        };
+
         var total = await query.CountAsync();
 
         var ledgers = await query
-            .OrderBy(l => l.Code)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
             .ToListAsync();
+
+        var lastPage = (int)Math.Ceiling(total / (double)perPage);
 
         return new PagedResult<LedgerResponse>
         {
@@ -42,9 +64,9 @@ public class LedgerService
             Meta = new PagedResultMeta
             {
                 Total = total,
-                Page = 1,
-                PerPage = total,
-                LastPage = 1
+                Page = page,
+                PerPage = perPage,
+                LastPage = lastPage > 0 ? lastPage : 1
             }
         };
     }
@@ -389,6 +411,275 @@ public class LedgerService
             TotalRevenue = totalRevenue,
             TotalExpenses = totalExpenses
         };
+    }
+
+    public async Task<YearEndCloseResponse> YearEndCloseAsync(int year, int closedByUserId)
+    {
+        // Idempotency guard: check if year is already closed
+        var alreadyClosed = await _dbContext.ClosedYears.AnyAsync(cy => cy.Year == year);
+        if (alreadyClosed)
+        {
+            throw new BusinessRuleException($"Year {year} has already been closed");
+        }
+
+        // Get all revenue and expense ledgers
+        var revenueLedgers = await _dbContext.Ledgers
+            .Where(l => l.Type == "revenue" && l.DeletedAt == null && l.IsActive)
+            .ToListAsync();
+
+        var expenseLedgers = await _dbContext.Ledgers
+            .Where(l => l.Type == "expense" && l.DeletedAt == null && l.IsActive)
+            .ToListAsync();
+
+        // Get Retained Earnings ledger (code 3000)
+        var retainedEarnings = await _dbContext.Ledgers
+            .Where(l => l.Code == "3000" && l.DeletedAt == null)
+            .FirstOrDefaultAsync()
+            ?? throw new BusinessRuleException("Retained Earnings ledger (3000) not found");
+
+        // Calculate net revenue and net expense
+        var netRevenue = revenueLedgers.Sum(l => l.Balance);
+        var netExpense = expenseLedgers.Sum(l => l.Balance);
+        var netProfit = netRevenue - netExpense;
+
+        var closingEntries = new List<ClosingEntryResponse>();
+        var now = DateTime.UtcNow;
+        var yearEndDate = new DateTime(year, 12, 31);
+
+        // Begin transaction
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            // 1. Close revenue accounts: DEBIT each revenue ledger, CREDIT Retained Earnings
+            foreach (var ledger in revenueLedgers.Where(l => l.Balance != 0))
+            {
+                // Create closing journal entry - debit revenue to zero it
+                var journalEntry = new JournalEntry
+                {
+                    LedgerId = ledger.Id,
+                    EntryType = "debit",
+                    Amount = ledger.Balance,
+                    EntryDate = yearEndDate,
+                    Description = $"Year-end closing entry for {year} - Zeroing revenue account",
+                    JournalType = "closing",
+                    CreatedBy = closedByUserId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                _dbContext.JournalEntries.Add(journalEntry);
+
+                // Credit Retained Earnings
+                var retainedEarningsEntry = new JournalEntry
+                {
+                    LedgerId = retainedEarnings.Id,
+                    EntryType = "credit",
+                    Amount = ledger.Balance,
+                    EntryDate = yearEndDate,
+                    Description = $"Year-end closing entry for {year} - Transfer from {ledger.Name}",
+                    JournalType = "closing",
+                    CreatedBy = closedByUserId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                _dbContext.JournalEntries.Add(retainedEarningsEntry);
+
+                // Update ledger balance
+                retainedEarnings.Balance += ledger.Balance;
+                ledger.Balance = 0;
+                ledger.UpdatedAt = now;
+
+                closingEntries.Add(new ClosingEntryResponse
+                {
+                    LedgerCode = ledger.Code,
+                    LedgerName = ledger.Name,
+                    EntryType = "debit",
+                    Amount = ledger.Balance
+                });
+            }
+
+            // 2. Close expense accounts: CREDIT each expense ledger, DEBIT Retained Earnings
+            foreach (var ledger in expenseLedgers.Where(l => l.Balance != 0))
+            {
+                // Create closing journal entry - credit expense to zero it
+                var journalEntry = new JournalEntry
+                {
+                    LedgerId = ledger.Id,
+                    EntryType = "credit",
+                    Amount = ledger.Balance,
+                    EntryDate = yearEndDate,
+                    Description = $"Year-end closing entry for {year} - Zeroing expense account",
+                    JournalType = "closing",
+                    CreatedBy = closedByUserId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                _dbContext.JournalEntries.Add(journalEntry);
+
+                // Debit Retained Earnings
+                var retainedEarningsEntry = new JournalEntry
+                {
+                    LedgerId = retainedEarnings.Id,
+                    EntryType = "debit",
+                    Amount = ledger.Balance,
+                    EntryDate = yearEndDate,
+                    Description = $"Year-end closing entry for {year} - Transfer from {ledger.Name}",
+                    JournalType = "closing",
+                    CreatedBy = closedByUserId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                _dbContext.JournalEntries.Add(retainedEarningsEntry);
+
+                // Update ledger balance
+                retainedEarnings.Balance -= ledger.Balance;
+                ledger.Balance = 0;
+                ledger.UpdatedAt = now;
+
+                closingEntries.Add(new ClosingEntryResponse
+                {
+                    LedgerCode = ledger.Code,
+                    LedgerName = ledger.Name,
+                    EntryType = "credit",
+                    Amount = ledger.Balance
+                });
+            }
+
+            // Record the closed year
+            var closedYear = new ClosedYear
+            {
+                Year = year,
+                ClosedAt = now,
+                ClosedBy = closedByUserId
+            };
+            _dbContext.ClosedYears.Add(closedYear);
+
+            retainedEarnings.UpdatedAt = now;
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new YearEndCloseResponse
+            {
+                Year = year,
+                NetRevenue = netRevenue,
+                NetExpense = netExpense,
+                NetProfit = netProfit,
+                ClosingEntries = closingEntries,
+                ClosedAt = now
+            };
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<YearBeginningOpenResponse> YearBeginningOpenAsync(int year, int openedByUserId)
+    {
+        // Guard: prior year must be closed
+        var priorYear = year - 1;
+        var priorYearClosed = await _dbContext.ClosedYears.AnyAsync(cy => cy.Year == priorYear);
+        if (!priorYearClosed)
+        {
+            throw new BusinessRuleException($"Cannot open year {year} because year {priorYear} has not been closed");
+        }
+
+        // Guard: check if year is already opened (has opening entries)
+        var alreadyOpened = await _dbContext.JournalEntries
+            .AnyAsync(j => j.JournalType == "opening" && j.EntryDate.Year == year);
+        if (alreadyOpened)
+        {
+            throw new BusinessRuleException($"Year {year} has already been opened");
+        }
+
+        // Get all permanent accounts (asset, liability, equity)
+        var permanentLedgers = await _dbContext.Ledgers
+            .Where(l => (l.Type == "asset" || l.Type == "liability" || l.Type == "equity")
+                && l.DeletedAt == null
+                && l.IsActive
+                && l.Balance != 0)
+            .ToListAsync();
+
+        var openingEntries = new List<OpeningEntryResponse>();
+        var now = DateTime.UtcNow;
+        var yearStartDate = new DateTime(year, 1, 1);
+
+        decimal totalDebits = 0;
+        decimal totalCredits = 0;
+
+        // Begin transaction
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            foreach (var ledger in permanentLedgers)
+            {
+                string entryType;
+                decimal amount = Math.Abs(ledger.Balance);
+
+                // For debit-normal accounts (asset), opening entry is debit
+                // For credit-normal accounts (liability, equity), opening entry is credit
+                if (ledger.Type == "asset")
+                {
+                    entryType = "debit";
+                    totalDebits += amount;
+                }
+                else // liability, equity
+                {
+                    entryType = "credit";
+                    totalCredits += amount;
+                }
+
+                var journalEntry = new JournalEntry
+                {
+                    LedgerId = ledger.Id,
+                    EntryType = entryType,
+                    Amount = amount,
+                    EntryDate = yearStartDate,
+                    Description = $"Year-beginning opening entry for {year} - Balance brought forward",
+                    JournalType = "opening",
+                    CreatedBy = openedByUserId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                _dbContext.JournalEntries.Add(journalEntry);
+
+                openingEntries.Add(new OpeningEntryResponse
+                {
+                    LedgerCode = ledger.Code,
+                    LedgerName = ledger.Name,
+                    Type = ledger.Type,
+                    EntryType = entryType,
+                    Amount = amount
+                });
+            }
+
+            // Validate that opening entries balance (Assets = Liabilities + Equity)
+            if (totalDebits != totalCredits)
+            {
+                throw new BusinessRuleException($"Opening entries are unbalanced. Total debits: {totalDebits:C}, Total credits: {totalCredits:C}");
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new YearBeginningOpenResponse
+            {
+                Year = year,
+                TotalOpeningDebits = totalDebits,
+                TotalOpeningCredits = totalCredits,
+                IsBalanced = totalDebits == totalCredits,
+                OpeningEntries = openingEntries,
+                OpenedAt = now
+            };
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }
 

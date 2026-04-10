@@ -139,16 +139,16 @@ A RESTful API for school financial management. Handles student payments, donor/v
 - Smoke tests cover auth, transaction create, and reversal.
 
 #### Milestone 7 — Year-End & Import
-- [ ] `ClosedYears` table + EF migration
-- [ ] `POST /api/v1/ledgers/year-end-close` — closing entries; idempotency guard; inserts into `ClosedYears`
-- [ ] `POST /api/v1/ledgers/year-beginning-open` — opening entries with correct debit/credit direction; balance check
-- [ ] `POST /api/v1/students/import` — CSV upload (multipart/form-data); returns imported/skipped counts
+- [x] `ClosedYears` table + EF migration
+- [x] `POST /api/v1/ledgers/year-end-close` — closing entries; idempotency guard; inserts into `ClosedYears`
+- [x] `POST /api/v1/ledgers/year-beginning-open` — opening entries with correct debit/credit direction; balance check
+- [x] `POST /api/v1/students/import` — CSV upload (multipart/form-data); returns imported/skipped counts
 
 #### Milestone 8 — Polish
-- [ ] Consistent pagination query parameters (`page`, `perPage`, `sortBy`, `sortDesc`)
-- [ ] Input validation on all endpoints
-- [ ] Seed data (chart of accounts, sample students/classes)
-- [ ] xUnit smoke tests for critical paths (auth, transaction create, reversal)
+- [x] Consistent pagination query parameters (`page`, `perPage`, `sortBy`, `sortDesc`)
+- [x] Input validation on all endpoints
+- [x] Seed data (chart of accounts, sample students/classes)
+- [x] xUnit smoke tests for critical paths (auth, transaction create, reversal)
 
 ---
 

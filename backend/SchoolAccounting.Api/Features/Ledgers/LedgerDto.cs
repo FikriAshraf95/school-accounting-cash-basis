@@ -81,3 +81,50 @@ public class LedgerSummaryItemResponse
     public decimal NetChange { get; set; }
     public decimal ClosingBalance { get; set; }
 }
+
+public class YearEndCloseRequest
+{
+    public int Year { get; set; }
+}
+
+public class YearEndCloseResponse
+{
+    public int Year { get; set; }
+    public decimal NetRevenue { get; set; }
+    public decimal NetExpense { get; set; }
+    public decimal NetProfit { get; set; }
+    public List<ClosingEntryResponse> ClosingEntries { get; set; } = [];
+    public DateTime ClosedAt { get; set; }
+}
+
+public class ClosingEntryResponse
+{
+    public string LedgerCode { get; set; } = string.Empty;
+    public string LedgerName { get; set; } = string.Empty;
+    public string EntryType { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
+}
+
+public class YearBeginningOpenRequest
+{
+    public int Year { get; set; }
+}
+
+public class YearBeginningOpenResponse
+{
+    public int Year { get; set; }
+    public decimal TotalOpeningDebits { get; set; }
+    public decimal TotalOpeningCredits { get; set; }
+    public bool IsBalanced { get; set; }
+    public List<OpeningEntryResponse> OpeningEntries { get; set; } = [];
+    public DateTime OpenedAt { get; set; }
+}
+
+public class OpeningEntryResponse
+{
+    public string LedgerCode { get; set; } = string.Empty;
+    public string LedgerName { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public string EntryType { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
+}

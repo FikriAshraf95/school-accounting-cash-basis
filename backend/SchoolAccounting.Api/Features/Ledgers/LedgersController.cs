@@ -18,10 +18,14 @@ public class LedgersController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<LedgerResponse>>> GetLedgers(
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 15,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDesc = false,
         [FromQuery] string? type = null,
         [FromQuery] bool? isActive = null)
     {
-        var result = await _ledgerService.GetLedgersAsync(type, isActive);
+        var result = await _ledgerService.GetLedgersAsync(page, perPage, sortBy, sortDesc, type, isActive);
         return Ok(result);
     }
 
@@ -68,6 +72,24 @@ public class LedgersController : ControllerBase
     public async Task<ActionResult<LedgerSummaryResponse>> GetLedgerSummary(int year)
     {
         var result = await _ledgerService.GetLedgerSummaryByYearAsync(year);
+        return Ok(result);
+    }
+
+    [HttpPost("year-end-close")]
+    [Authorize(Roles = $"{AppRole.Admin},{AppRole.Accountant}")]
+    public async Task<ActionResult<YearEndCloseResponse>> YearEndClose(YearEndCloseRequest request)
+    {
+        var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var result = await _ledgerService.YearEndCloseAsync(request.Year, userId);
+        return Ok(result);
+    }
+
+    [HttpPost("year-beginning-open")]
+    [Authorize(Roles = $"{AppRole.Admin},{AppRole.Accountant}")]
+    public async Task<ActionResult<YearBeginningOpenResponse>> YearBeginningOpen(YearBeginningOpenRequest request)
+    {
+        var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var result = await _ledgerService.YearBeginningOpenAsync(request.Year, userId);
         return Ok(result);
     }
 }
