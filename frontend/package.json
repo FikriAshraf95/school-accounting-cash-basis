@@ -1,0 +1,49 @@
+{
+  "name": "ezi-account",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "@heroicons/vue": "^2.1.5",
+    "@iconify/vue": "^4.1.2",
+    "@vueuse/core": "^11.2.0",
+    "axios": "^1.7.7",
+    "chart.js": "^4.4.6",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "embla-carousel-vue": "^8.3.1",
+    "lucide-vue-next": "^0.454.0",
+    "pinia": "^2.2.6",
+    "pinia-plugin-persistedstate": "^4.1.2",
+    "radix-vue": "^1.9.8",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul-vue": "^0.2.0",
+    "vue": "^3.5.12",
+    "vue-chartjs": "^5.3.2",
+    "vue-router": "^4.4.5",
+    "vue-signature-pad": "^3.0.2",
+    "vue-sonner": "^1.2.5"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.17.6",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "@vue/tsconfig": "^0.5.1",
+    "autoprefixer": "^10.4.20",
+    "npm-run-all2": "^7.0.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.10",
+    "vue-tsc": "^2.1.10"
+  }
+}

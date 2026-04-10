@@ -1,0 +1,124 @@
+import { useAuthStore } from "@/stores/auth";
+
+// Define an authentication guard function
+const requireAuth = async (to: any, from: any, next: any) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = await authStore.isAuthenticated();
+
+  if (isAuthenticated) {
+    next(); // Allow navigation
+  } else {
+    next("/login"); // Redirect to login if not authenticated
+  }
+};
+
+const redirectIfAuthenticated = (to: any, from: any, next: any) => {
+  const authStore = useAuthStore();
+  if (authStore.isAuthenticated()) {
+    next("/dashboard"); // Redirect to dashboard if already authenticated
+  } else {
+    next(); // Allow access to login page if not authenticated
+  }
+};
+
+const routes = [
+    // {
+    //   path: '/',
+    //   name: 'Home',
+    //   component: () => import('@/pages/contents/testing/home.vue')
+    // },
+    // {
+    //   path: '/about',
+    //   name: 'About',
+    //   component: () => import('@/pages/contents/testing/about.vue')
+    // },
+    // {
+    //   path: '/login',
+    //   name: 'Login',
+    //   component: () => import('@/pages/contents/testing/login.vue'),
+    //   beforeEnter: redirectIfAuthenticated, // Add this line
+    // },
+    // {
+    //   path: '/dashboard',
+    //   name: 'Dashboard',
+    //   component: () => import('@/pages/contents/testing/dashboard.vue'),
+    //   beforeEnter: requireAuth,
+    // }
+
+
+    {
+      path: "/",
+      redirect: "/login", // Redirect root path to /login
+      // beforeEnter: redirectIfAuthenticated, // Add this line
+    },
+    // Login
+    {
+      path: "/",
+      children: [
+        {
+          name: "Login",
+          path: "login",
+          component: () => import("@/pages/contents/auth/Login.vue"),
+          beforeEnter: redirectIfAuthenticated, // Add this line
+        },
+        {
+          name: "IDSaya Login",
+          path: "/login-process",
+          component: () => import("@/pages/contents/auth/IdSayaLogin.vue"),
+          beforeEnter: redirectIfAuthenticated, // Add this line
+        },
+      ],
+    },
+    // Public routes
+    {
+      path: "/",
+      component: () => import("@/pages/layouts/PublicLayout.vue"),
+      children: [
+
+      ],
+    },
+    // Authenticated routes
+    // Dashboard
+    {
+      path: "/dashboard",
+      component: () => import("@/pages/layouts/AuthLayout.vue"), // Use the admin layout
+      beforeEnter: requireAuth, // Apply the guard to the admin section
+      children: [
+        {
+          name: "Dashboard",
+          path: "",
+          component: () => import("@/pages/contents/dashboard/index.vue"),
+        },
+      ],
+    },
+    {
+        path: "/finance",
+        component: () => import("@/pages/layouts/AuthLayout.vue"), // Use the admin layout
+        beforeEnter: requireAuth, // Apply the guard to the admin section
+        children: [
+          // project
+          // manage
+          {
+            name: "Index",
+            path: "/project/index",
+            component: () => import("@/pages/contents/modules/finance/project/manage/Index.vue"),
+          },
+        ],
+    },
+
+
+
+
+    {
+      name: "Placeholder",
+      path: "/placeholder",
+      component: () => import("@/pages/contents/testing/PlaceHolder.vue"),
+    },
+    // 404
+    { 
+      name: 'NotFound', 
+      path: '/:pathMatch(.*)*', 
+      component: () => import('@/pages/contents/NotFound.vue') 
+    }
+  ];
+export default routes;

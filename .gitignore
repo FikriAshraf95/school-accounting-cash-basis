@@ -18,6 +18,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+backend/SchoolAccounting.Api/bin/
+backend/SchoolAccounting.Api/obj/
 
 # Visual Studio
 .vs/

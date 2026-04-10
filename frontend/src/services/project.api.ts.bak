@@ -1,0 +1,69 @@
+import http from "@/services/api";
+
+export default {
+  saveProjectDraft(payload: any) {
+    return http.post("project/save-draft", payload);
+  },
+  saveProject(payload: any) {
+    return http.post("project", payload);
+  },
+
+  getDocuments(projectId: string | number) {
+    return http.get(`project/documents/${projectId}`);
+  },
+
+  uploadDocuments(projectId: string | number, formData: FormData) {
+    return http.post(`project/documents/${projectId}`, formData);
+  },
+
+  deleteDocument(documentId: string | number) {
+    return http.delete(`project/documents/${documentId}`);
+  },
+
+  getMilestones(projectId: string | number) {
+    return http.get(`project/milestones/${projectId}`);
+  },
+
+  saveMilestone(projectId: string | number, payload: any) {
+    return http.post(`project/milestones/${projectId}`, payload);
+  },
+  deleteMilestone(milestoneId: string | number) {
+    return http.delete(`project/milestones/${milestoneId}`);
+  },
+
+  saveMilestoneDocument(milestoneId: string | number, formData: FormData) {
+    return http.post(`project/milestones/documents/${milestoneId}`, formData);
+  },
+
+  deleteMilestoneDocument(documentId: string | number) {
+    return http.delete(`project/milestones/documents/${documentId}`);
+  },
+  saveSupportAndMainTenanceDetail(milestoneId: string | number, payload: any) {
+    return http.post(
+      `project/milestones/support-and-maintenance-detail/${milestoneId}`,
+      payload
+    );
+  },
+  saveCertDetail(milestoneId: string | number, payload: any) {
+    return http.post(`project/milestones/cert/${milestoneId}`, payload);
+  },
+
+  approveProject(projectId: string | number) {
+    return http.post(`project/approve/${projectId}`);
+  },
+
+
+  // save user updated form
+  saveUserForm(projectId: string | number, payload: any) {
+    return http.put(`project/update-project-details/${projectId}`, payload);
+  },
+
+  getProjectAuditLogs(projectId: string | number){
+    return http.get(`project/finance-project-audit-log/${projectId}`);
+  },
+
+  // save project customer details
+  saveCustomerDetailChanges(projectId: string | number, payload: any) {
+    return http.put(`project/approve-customer-detail-changes/${projectId}`, payload);
+  },
+};
