@@ -22,6 +22,15 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Global soft-delete filters — automatically exclude logically deleted rows from all queries.
+        // Use .IgnoreQueryFilters() on a specific query only if deleted records are intentionally needed.
+        modelBuilder.Entity<Transaction>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<Student>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<StudentGrade>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<StudentClass>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<Payer>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<Ledger>().HasQueryFilter(e => e.DeletedAt == null);
+
         // Users
         modelBuilder.Entity<User>(entity =>
         {
@@ -248,6 +257,7 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => new { e.TransactionDate, e.Type });
             entity.HasIndex(e => new { e.TransactableType, e.StudentId, e.PayerId });
             entity.HasIndex(e => e.CashLedgerId);
+            entity.HasIndex(e => e.CreatedAt);
 
             entity.HasOne(e => e.Student)
                 .WithMany()

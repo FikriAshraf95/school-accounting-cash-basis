@@ -225,7 +225,7 @@ public class TransactionService
         }
 
         // Generate transaction number
-        var transactionNumber = await GenerateTransactionNumberAsync(request.TransactionDate);
+        var transactionNumber = GenerateTransactionNumber(request.TransactionDate);
 
         // Create transaction
         var transaction = new Transaction
@@ -636,12 +636,26 @@ public class TransactionService
         var ledger = await _dbContext.Ledgers.FindAsync(ledgerId)
             ?? throw new NotFoundException($"Ledger with ID {ledgerId} not found");
 
-        // Update balance based on account type and entry type
-        // Debit-normal accounts (asset, expense): debit increases, credit decreases
-        // Credit-normal accounts (liability, equity, revenue): credit increases, debit decreases
+        // Double-entry bookkeeping balance rule:
+        //
+        //   Account type   | Normal side | Debit effect | Credit effect
+        //   --------------------------------------------------------
+        //   asset          | debit       | +amount      | -amount
+        //   expense        | debit       | +amount      | -amount
+        //   liability      | credit      | -amount      | +amount
+        //   equity         | credit      | -amount      | +amount
+        //   revenue        | credit      | -amount      | +amount
+        //
+        // Example — income transaction (student pays MYR 500 tuition fee):
+        //   DR Cash (asset)          +500   → balance increases
+        //   CR Tuition Fee (revenue) +500   → balance increases
+        //
+        // Example — expense transaction (MYR 1000 salary paid):
+        //   DR Salaries (expense)    +1000  → balance increases
+        //   CR Cash (asset)          -1000  → balance decreases
         var isDebitNormal = ledger.Type == "asset" || ledger.Type == "expense";
 
-        if (entryType == "debit")
+        if (entryType == TransactionConstants.EntryDebit)
         {
             ledger.Balance += isDebitNormal ? amount : -amount;
         }
@@ -689,28 +703,14 @@ public class TransactionService
         payer.UpdatedAt = DateTime.UtcNow;
     }
 
-    private async Task<string> GenerateTransactionNumberAsync(DateTime transactionDate)
+    private static string GenerateTransactionNumber(DateTime transactionDate)
     {
+        // Uses a random 8-char hex suffix instead of a sequential counter to eliminate
+        // the read-then-write race condition. The unique index on TransactionNumber
+        // still catches the astronomically unlikely collision at the database level.
         var datePrefix = transactionDate.ToString("yyyyMMdd");
-        var baseNumber = $"TXN-{datePrefix}-";
-
-        // Find the highest number for today
-        var lastTransaction = await _dbContext.Transactions
-            .Where(t => t.TransactionNumber.StartsWith(baseNumber))
-            .OrderByDescending(t => t.TransactionNumber)
-            .FirstOrDefaultAsync();
-
-        int sequence = 1;
-        if (lastTransaction != null)
-        {
-            var lastSequence = lastTransaction.TransactionNumber.Split('-').Last();
-            if (int.TryParse(lastSequence, out var seq))
-            {
-                sequence = seq + 1;
-            }
-        }
-
-        return $"{baseNumber}{sequence:D4}";
+        var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+        return $"{TransactionConstants.TxnPrefix}{datePrefix}-{suffix}";
     }
 
     private static string GenerateReceiptNumber()

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SchoolAccounting.Api.Common;
 using SchoolAccounting.Api.Common.Exceptions;
 using SchoolAccounting.Api.Infrastructure.Persistence;
 
@@ -46,7 +47,7 @@ public class TransactionReversalService
             var reversalType = originalTransaction.Type == "income" ? "expense" : "income";
             var reversalTransaction = new Transaction
             {
-                TransactionNumber = await GenerateReversalTransactionNumberAsync(today),
+                TransactionNumber = GenerateReversalTransactionNumber(today),
                 TransactionDate = today,
                 Type = reversalType,
                 TransactableType = originalTransaction.TransactableType,
@@ -209,26 +210,10 @@ public class TransactionReversalService
         payer.UpdatedAt = DateTime.UtcNow;
     }
 
-    private async Task<string> GenerateReversalTransactionNumberAsync(DateTime date)
+    private static string GenerateReversalTransactionNumber(DateTime date)
     {
         var datePrefix = date.ToString("yyyyMMdd");
-        var baseNumber = $"REV-{datePrefix}-";
-
-        var lastTransaction = await _dbContext.Transactions
-            .Where(t => t.TransactionNumber.StartsWith(baseNumber))
-            .OrderByDescending(t => t.TransactionNumber)
-            .FirstOrDefaultAsync();
-
-        int sequence = 1;
-        if (lastTransaction != null)
-        {
-            var lastSequence = lastTransaction.TransactionNumber.Split('-').Last();
-            if (int.TryParse(lastSequence, out var seq))
-            {
-                sequence = seq + 1;
-            }
-        }
-
-        return $"{baseNumber}{sequence:D4}";
+        var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+        return $"{TransactionConstants.RevPrefix}{datePrefix}-{suffix}";
     }
 }

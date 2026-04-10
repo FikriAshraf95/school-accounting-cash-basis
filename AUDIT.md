@@ -45,6 +45,50 @@ All 6 critical issues have been resolved. Summary of changes:
 **Fix 6 — NuGet packages**
 - `FluentValidation` + `FluentValidation.DependencyInjectionExtensions`: `12.0.0-preview1` → `12.1.1` (stable)
 - `Microsoft.EntityFrameworkCore.SqlServer` + `.Design`: `10.0.0-preview.2.25163.2` → `10.0.0` (stable)
+- `Microsoft.EntityFrameworkCore.InMemory` (test project): `10.0.0-preview.2` → `10.0.0` (stable)
+
+---
+
+## Short-Term Fixes (2026-04-11)
+
+| # | Issue | Status | Files Changed |
+|---|---|---|---|
+| 7 | Global soft-delete query filter | **Fixed** | `AppDbContext.cs` |
+| 8 | Transaction number race condition | **Fixed** | `TransactionService.cs`, `TransactionReversalService.cs` |
+| 9 | Balance update algorithm undocumented | **Fixed** | `TransactionService.cs` |
+| 10 | Incomplete test coverage | **Fixed** | `StudentServiceSmokeTests.cs`, `LedgerServiceSmokeTests.cs` |
+| 11 | Missing `CreatedAt` index | **Fixed** | `AppDbContext.cs`, new migration |
+| 12 | Magic strings scattered across files | **Fixed** | `Common/TransactionConstants.cs` |
+
+### Details
+
+**Fix 7 — Global soft-delete query filters**
+- `AppDbContext.OnModelCreating`: added `HasQueryFilter(e => e.DeletedAt == null)` for Transaction, Student, StudentGrade, StudentClass, Payer, Ledger
+- Existing explicit `DeletedAt == null` checks in service queries are now redundant but harmless
+- EF Core emits warnings for Ledger→Category and Ledger→JournalEntry relationships — acceptable because `LedgerService.DeleteLedgerAsync` already blocks deletion when categories exist or balance is non-zero
+
+**Fix 8 — Transaction number race condition**
+- `TransactionService.GenerateTransactionNumber`: removed sequential DB read; now generates `TXN-{yyyyMMdd}-{8-char GUID}` — collision probability is negligible; the existing `UNIQUE` constraint on `TransactionNumber` remains as the final safety net
+- Same change in `TransactionReversalService.GenerateReversalTransactionNumber` (`REV-` prefix)
+- Both methods are now `static` (no DB call needed)
+
+**Fix 9 — Balance update algorithm**
+- `TransactionService.UpdateLedgerBalanceAsync`: added a clear comment block with a full debit/credit table and two worked examples (income + expense)
+
+**Fix 10 — Test coverage**
+- Added `SmokeTests/StudentServiceSmokeTests.cs` (5 tests): create, duplicate detection, paged list, soft-delete visibility, get-after-delete
+- Added `SmokeTests/LedgerServiceSmokeTests.cs` (5 tests): create, invalid type, duplicate code, non-zero balance guard, paged list
+- Total tests: **24 passing**
+
+**Fix 11 — Indexes**
+- `AppDbContext`: added `entity.HasIndex(e => e.CreatedAt)` on Transactions
+- Note: `{TransactionDate, Type}` composite index was already present (not missing as originally noted)
+- New migration: `AddCreatedAtIndexAndQueryFilters`
+
+**Fix 12 — Constants**
+- New file: `Common/TransactionConstants.cs`
+- Constants for: `TxnPrefix`, `RevPrefix`, `RcpPrefix`, `TypeIncome`, `TypeExpense`, `EntryDebit`, `EntryCredit`, journal types
+- Applied in `TransactionService` and `TransactionReversalService`
 
 ---
 
@@ -210,6 +254,15 @@ var lastTransaction = await _dbContext.Transactions
 | No API versioning strategy documented | `/api/v1/` prefix exists but no policy for breaking changes |
 | POCO domain models | Fine for current scale; revisit if domain logic grows |
 
+## Answers
+
+| **Revocability** | **Instant.** Delete the row in the DB, and the user is logged out. | **Delayed.** Valid until it expires (unless you build a "blacklist"). |
+| **Database Load** | **High.** Every API request requires a database lookup. | **Low.** Server checks the cryptographic signature (no DB hit). |
+| **Complexity** | **Low.** It's just a table join or lookup. | **Medium.** Requires managing signing keys and libraries. |
+| **Auditability** | **Excellent.** You can see exactly when a token was last used. | **Poor.** You have no record of active tokens unless logged elsewhere. |
+
+
+
 ---
 
 ## Security Checklist
@@ -254,15 +307,15 @@ var lastTransaction = await _dbContext.Transactions
 3. ~~Add rate limiting to `/auth/login` and `/auth/register`~~ ✓ Done
 4. ~~Replace preview NuGet packages with stable versions~~ ✓ Done
 5. ~~Enable HTTPS redirection~~ ✓ Done
-6. Fix N+1 query in student report
+6. Fix N+1 query in student report — note: existing code issues 2 queries total (not true N+1); acceptable for current scale
 
-### Short Term (within 1 month)
-7. Add EF Core global query filter for soft deletes
-8. Fix race condition in transaction number generation (database sequence)
-9. Document and test the ledger balance update algorithm
-10. Expand unit test coverage to all service classes
-11. Add composite indexes on `TransactionDate + Type` and `CreatedAt`
-12. Create constants file for magic strings
+### Short Term (within 1 month) ✓ All Done
+7. ~~Add EF Core global query filter for soft deletes~~ ✓ Done
+8. ~~Fix race condition in transaction number generation~~ ✓ Done (GUID-based suffix)
+9. ~~Document and test the ledger balance update algorithm~~ ✓ Done
+10. ~~Expand unit test coverage to all service classes~~ ✓ Done (24 tests passing)
+11. ~~Add composite indexes on `TransactionDate + Type` and `CreatedAt`~~ ✓ Done (`{TransactionDate,Type}` was already present; added `CreatedAt` index + migration)
+12. ~~Create constants file for magic strings~~ ✓ Done (`Common/TransactionConstants.cs`)
 
 ### Medium Term (1–3 months)
 13. Implement audit trail (change history table + EF interceptor)
