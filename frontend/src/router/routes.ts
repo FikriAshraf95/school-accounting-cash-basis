@@ -64,68 +64,68 @@ const routes = [
   },
   
   // Students Module - Week 3
-  // {
-  //   path: "/students",
-  //   component: () => import("@/layouts/AuthLayout.vue"),
-  //   beforeEnter: requireAuth,
-  //   children: [
-  //     {
-  //       name: "students_list",
-  //       path: "",
-  //       component: () => import("@/pages/modules/students/Index.vue"),
-  //     },
-  //     {
-  //       name: "student_create",
-  //       path: "create",
-  //       component: () => import("@/pages/modules/students/Detail.vue"),
-  //     },
-  //     {
-  //       name: "student_edit",
-  //       path: ":id/edit",
-  //       component: () => import("@/pages/modules/students/Detail.vue"),
-  //     },
-  //     {
-  //       name: "student_view",
-  //       path: ":id",
-  //       component: () => import("@/pages/modules/students/View.vue"),
-  //     },
-  //     // Reports
-  //     {
-  //       name: "students_reports",
-  //       path: "reports",
-  //       component: () => import("@/pages/modules/student_reports/Index.vue"),
-  //     },
-  //   ],
-  // },
+  {
+    path: "/students",
+    component: () => import("@/layouts/AuthLayout.vue"),
+    beforeEnter: requireAuth,
+    children: [
+      {
+        name: "students_list",
+        path: "",
+        component: () => import("@/pages/modules/students/Index.vue"),
+      },
+      {
+        name: "student_create",
+        path: "create",
+        component: () => import("@/pages/modules/students/Detail.vue"),
+      },
+      {
+        name: "student_edit",
+        path: ":id/edit",
+        component: () => import("@/pages/modules/students/Detail.vue"),
+      },
+      {
+        name: "student_view",
+        path: ":id",
+        component: () => import("@/pages/modules/students/View.vue"),
+      },
+      // Reports
+      {
+        name: "students_reports",
+        path: "reports",
+        component: () => import("@/pages/modules/student_reports/Index.vue"),
+      },
+    ],
+  },
 
   // Payer Module - Week 3
-  // {
-  //   path: "/payer",
-  //   component: () => import("@/layouts/AuthLayout.vue"),
-  //   beforeEnter: requireAuth,
-  //   children: [
-  //     {
-  //       name: "payers_list",
-  //       path: "",
-  //       component: () => import("@/pages/modules/payer/Index.vue"),
-  //     },
-  //     {
-  //       name: "payer_create",
-  //       path: "create",
-  //       component: () => import("@/pages/modules/payer/Detail.vue"),
-  //     },
-  //     {
-  //       name: "payer_edit",
-  //       path: ":id/edit",
-  //       component: () => import("@/pages/modules/payer/Detail.vue"),
-  //     },
-  //     {
-  //       name: "payer_view",
-  //       path: ":id",
-  //       component: () => import("@/pages/modules/payer/View.vue"),
-  //     },
-  //   ]
-  // },
+  {
+    path: "/payer",
+    component: () => import("@/layouts/AuthLayout.vue"),
+    beforeEnter: requireAuth,
+    children: [
+      {
+        name: "payers_list",
+        path: "",
+        component: () => import("@/pages/modules/payer/Index.vue"),
+      },
+      {
+        name: "payer_create",
+        path: "create",
+        component: () => import("@/pages/modules/payer/Detail.vue"),
+      },
+      {
+        name: "payer_edit",
+        path: ":id/edit",
+        component: () => import("@/pages/modules/payer/Detail.vue"),
+      },
+      {
+        name: "payer_view",
+        path: ":id",
+        component: () => import("@/pages/modules/payer/View.vue"),
+      },
+    ]
+  },
   
   // Classes Module
   {
