@@ -541,7 +541,7 @@ Response envelope:
   "meta": {
     "total": 100,
     "page": 1,
-    "perPage": 15,
+    "perPage": 10,
     "lastPage": 7
   }
 }

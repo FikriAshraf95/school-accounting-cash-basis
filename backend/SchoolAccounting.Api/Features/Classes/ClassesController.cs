@@ -19,7 +19,7 @@ public class ClassesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<ClassResponse>>> GetClasses(
         [FromQuery] int page = 1,
-        [FromQuery] int perPage = 15,
+        [FromQuery] int perPage = 10,
         [FromQuery] string? sortBy = null,
         [FromQuery] bool sortDesc = false)
     {

@@ -16,7 +16,7 @@ public class PayerService
 
     public async Task<PagedResult<PayerResponse>> GetPayersAsync(
         int page = 1,
-        int perPage = 15,
+        int perPage = 10,
         string? sortBy = null,
         bool sortDesc = false,
         string? search = null,

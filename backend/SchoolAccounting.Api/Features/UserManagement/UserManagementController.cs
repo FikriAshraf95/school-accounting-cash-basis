@@ -19,7 +19,7 @@ public class UserManagementController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<UserSummaryResponse>>> GetUsers(
         [FromQuery] int page = 1,
-        [FromQuery] int perPage = 15,
+        [FromQuery] int perPage = 10,
         [FromQuery] string? search = null)
     {
         var result = await _userManagementService.GetUsersAsync(page, perPage, search);

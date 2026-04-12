@@ -19,7 +19,7 @@ public class JournalEntriesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<JournalEntryResponse>>> GetJournalEntries(
         [FromQuery] int page = 1,
-        [FromQuery] int perPage = 15,
+        [FromQuery] int perPage = 10,
         [FromQuery] int? ledgerId = null,
         [FromQuery] string? journalType = null,
         [FromQuery] DateTime? dateFrom = null,

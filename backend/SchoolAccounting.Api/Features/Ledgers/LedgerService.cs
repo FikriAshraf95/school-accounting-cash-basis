@@ -16,7 +16,7 @@ public class LedgerService
 
     public async Task<PagedResult<LedgerResponse>> GetLedgersAsync(
         int page = 1,
-        int perPage = 15,
+        int perPage = 10,
         string? sortBy = null,
         bool sortDesc = false,
         string? type = null,

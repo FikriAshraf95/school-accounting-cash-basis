@@ -16,7 +16,7 @@ public class JournalEntryService
 
     public async Task<PagedResult<JournalEntryResponse>> GetJournalEntriesAsync(
         int page = 1,
-        int perPage = 15,
+        int perPage = 10,
         int? ledgerId = null,
         string? journalType = null,
         DateTime? dateFrom = null,

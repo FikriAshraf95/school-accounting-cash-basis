@@ -19,7 +19,7 @@ public class GradesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<GradeResponse>>> GetGrades(
         [FromQuery] int page = 1,
-        [FromQuery] int perPage = 15,
+        [FromQuery] int perPage = 10,
         [FromQuery] string? sortBy = null,
         [FromQuery] bool sortDesc = false)
     {

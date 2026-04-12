@@ -19,7 +19,7 @@ public class StudentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<StudentResponse>>> GetStudents(
         [FromQuery] int page = 1,
-        [FromQuery] int perPage = 15,
+        [FromQuery] int perPage = 10,
         [FromQuery] string? sortBy = null,
         [FromQuery] bool sortDesc = false,
         [FromQuery] string? search = null,

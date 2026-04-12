@@ -59,7 +59,7 @@ const payers = ref<Payer[]>([])
 const pagination = ref<PaginationMeta>({
   total: 0,
   page: 1,
-  perPage: 15,
+  perPage: 10,
   lastPage: 1,
 })
 const isLoading = ref(true)
@@ -82,7 +82,7 @@ onMounted(() => {
   sidebar.setPageName('Payers')
   // Get initial values from query params
   const page = parseInt(route.query.page as string) || 1
-  const perPage = parseInt(route.query.perPage as string) || 15
+  const perPage = parseInt(route.query.perPage as string) || 10
   pagination.value.page = page
   pagination.value.perPage = perPage
   

@@ -30,7 +30,7 @@ All list endpoints return:
   "meta": {
     "total": 100,
     "page": 1,
-    "perPage": 15,
+    "perPage": 10,
     "lastPage": 7
   }
 }
@@ -221,7 +221,7 @@ Returns single category object.
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `sortBy` | string | Field to sort by |
 | `sortDesc` | boolean | Default: false |
 
@@ -363,7 +363,7 @@ Returns single grade object.
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `sortBy` | string | Sort field |
 | `sortDesc` | boolean | Default: false |
 | `type` | string | `asset`\|`liability`\|`equity`\|`revenue`\|`expense` |
@@ -529,7 +529,7 @@ Returns single ledger object.
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `search` | string | Search by payer name |
 | `type` | string | `donor`\|`sponsor`\|`vendor`\|`supplier`\|`general`\|`government` |
 | `isActive` | boolean | Filter active/inactive |
@@ -619,7 +619,7 @@ Returns payer object with transaction history:
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `search` | string | Search by name |
 | `classId` | int | Filter by class |
 | `gradeId` | int | Filter by grade |
@@ -757,7 +757,7 @@ Returns student object with transaction history:
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `type` | string | `income` or `expense` |
 | `dateFrom` | datetime | Date range start |
 | `dateTo` | datetime | Date range end |
@@ -885,7 +885,7 @@ Returns student object with transaction history:
 | Param | Type | Description |
 |---|---|---|
 | `page` | int | Default: 1 |
-| `perPage` | int | Default: 15 |
+| `perPage` | int | Default: 10 |
 | `ledgerId` | int | Filter by ledger |
 | `journalType` | string | Filter by journal type |
 | `dateFrom` | datetime | Date range start |

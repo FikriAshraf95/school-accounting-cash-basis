@@ -36,7 +36,7 @@ export function usePagination(options: UsePaginationOptions) {
   // Table configuration
   const tableConfig = ref<TableConfig>({
     page: 1,
-    perPage: options.defaultPerPage || 15,
+    perPage: options.defaultPerPage || 10,
     sortBy: options.defaultSortBy || "created_at",
     sortDesc: options.defaultSortDesc !== undefined ? options.defaultSortDesc : false,
     paginate: true,
@@ -82,7 +82,7 @@ export function usePagination(options: UsePaginationOptions) {
     return params;
   });
 
-  const perPageOptions = [15, 25, 50, 100];
+  const perPageOptions = [10, 25, 50, 100];
 
   const paginationInfo = computed(() => {
     if (!tableConfig.value.paginate || items.value.length === 0) {
