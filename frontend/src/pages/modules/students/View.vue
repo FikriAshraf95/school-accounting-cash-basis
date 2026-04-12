@@ -106,7 +106,7 @@ async function fetchStudent() {
     isLoading.value = true
     error.value = null
     const response = await api.getStudent(studentId) as any
-    student.value = response.data
+    student.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load student'
     toast.error('Error', { description: error.value || undefined })
@@ -118,7 +118,7 @@ async function fetchStudent() {
 async function fetchAvailableClasses() {
   try {
     const response = await api.getClasses({ perPage: 1000 }) as any
-    availableClasses.value = response.data.data.map((c: any) => ({
+    availableClasses.value = (response ?? []).map((c: any) => ({
       id: c.id,
       name: c.name,
       gradeName: c.gradeName,
@@ -130,19 +130,15 @@ async function fetchAvailableClasses() {
 
 async function openAssignDialog() {
   await fetchAvailableClasses()
-  selectedClassId.value = student.value?.classId ? String(student.value.classId) : ''
+  selectedClassId.value = student.value?.classId ? String(student.value.classId) : 'none'
   showAssignDialog.value = true
 }
 
 async function assignToClass() {
-  if (!selectedClassId.value) {
-    toast.error('Validation Error', { description: 'Please select a class' })
-    return
-  }
-
   try {
     isAssigning.value = true
-    await api.assignStudentToClass(studentId, { classId: Number(selectedClassId.value) })
+    const classId = selectedClassId.value && selectedClassId.value !== 'none' ? Number(selectedClassId.value) : null
+    await api.assignStudentToClass(studentId, { classId })
     toast.success('Success', { description: 'Student assigned to class successfully' })
     showAssignDialog.value = false
     await fetchStudent()
@@ -324,7 +320,7 @@ function formatAmount(amount: number, type: string): string {
                       <SelectValue placeholder="Select a class" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Class</SelectItem>
+                      <SelectItem value="none">No Class</SelectItem>
                       <SelectItem 
                         v-for="cls in availableClasses" 
                         :key="cls.id" 

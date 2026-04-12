@@ -345,5 +345,5 @@ jobs:
 7. Set `AllowedOrigins` Application Setting to the production front-end URL
 8. Add `AZURE_WEBAPP_NAME` and `AZURE_WEBAPP_PUBLISH_PROFILE` secrets to the GitHub repo
 9. Push to `main` — confirm the Actions workflow passes and the app starts
-10. Log in as seeded `admin` / `admin@school.local`; **change the password immediately**
+10. Log in as seeded `admin` / `admin@school.com`; **change the password immediately**
 11. Create remaining user accounts and assign roles via `PUT /api/v1/users/{id}/role`

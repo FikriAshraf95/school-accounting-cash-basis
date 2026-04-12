@@ -144,7 +144,7 @@ Handled globally in `ExceptionHandlingMiddleware`:
 
 ### Bootstrap
 
-`DbInitializer.SeedAsync` runs on startup after migrations. Creates one Admin user (`admin / admin@school.local`, password `ChangeMe123!`) if no Admin exists. Idempotent.
+`DbInitializer.SeedAsync` runs on startup after migrations. Creates one Admin user (`admin / admin@school.com`, password `ChangeMe123!`) if no Admin exists. Idempotent.
 
 ### Last-admin guard
 

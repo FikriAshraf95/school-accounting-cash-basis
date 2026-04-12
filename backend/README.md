@@ -40,7 +40,7 @@ The API will:
 ### 4. Default admin credentials
 
 On first run, an admin user is created:
-- **Email:** admin@school.local
+- **Email:** admin@school.com
 - **Username:** admin
 - **Password:** ChangeMe123! (or the value from `AdminSeedPassword` config)
 

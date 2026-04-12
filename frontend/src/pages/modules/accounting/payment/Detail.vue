@@ -70,7 +70,7 @@ interface Category {
 const formData = ref({
   transactionDate: new Date().toISOString().split('T')[0],
   type: 'expense' as 'income' | 'expense',
-  transactableType: '' as 'Student' | 'Payer' | '',
+  transactableType: 'none' as 'Student' | 'Payer' | 'none',
   studentId: '',
   payerId: '',
   paymentMethod: 'cash',
@@ -119,19 +119,19 @@ async function loadOptions() {
     isLoadingOptions.value = true
     // Load students
     const studentsResponse = await api.getStudents({ perPage: 1000, isActive: true }) as any
-    students.value = studentsResponse.data.data
+    students.value = studentsResponse.data
 
     // Load payers
     const payersResponse = await api.getPayers({ perPage: 1000, isActive: true }) as any
-    payers.value = payersResponse.data.data
+    payers.value = payersResponse.data
 
     // Load cash ledgers (asset type)
     const ledgersResponse = await api.getLedgers({ perPage: 1000, type: 'asset' }) as any
-    cashLedgers.value = ledgersResponse.data.data
+    cashLedgers.value = ledgersResponse.data
 
     // Load expense categories
     const categoriesResponse = await api.getCategories({ perPage: 1000, type: 'expense' }) as any
-    expenseCategories.value = categoriesResponse.data.data
+    expenseCategories.value = categoriesResponse.data
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load options' })
   } finally {
@@ -144,12 +144,12 @@ async function fetchTransaction() {
     isLoading.value = true
     error.value = null
     const response = await api.getTransaction(transactionId.value) as any
-    const transaction = response.data
+    const transaction = response
 
     formData.value = {
       transactionDate: transaction.transactionDate.split('T')[0],
       type: transaction.type,
-      transactableType: transaction.transactableType || '',
+      transactableType: transaction.transactableType || 'none',
       studentId: transaction.studentId ? String(transaction.studentId) : '',
       payerId: transaction.payerId ? String(transaction.payerId) : '',
       paymentMethod: transaction.paymentMethod || 'cash',
@@ -219,11 +219,12 @@ async function saveTransaction() {
     isSaving.value = true
     const payload = {
       ...formData.value,
-      studentId: formData.value.transactableType === 'Student' && formData.value.studentId 
-        ? parseInt(formData.value.studentId) 
+      transactableType: formData.value.transactableType === 'none' ? null : formData.value.transactableType,
+      studentId: formData.value.transactableType === 'Student' && formData.value.studentId
+        ? parseInt(formData.value.studentId)
         : null,
-      payerId: formData.value.transactableType === 'Payer' && formData.value.payerId 
-        ? parseInt(formData.value.payerId) 
+      payerId: formData.value.transactableType === 'Payer' && formData.value.payerId
+        ? parseInt(formData.value.payerId)
         : null,
       cashLedgerId: parseInt(formData.value.cashLedgerId),
       items: validItems.map(item => ({
@@ -345,7 +346,7 @@ function formatAmount(amount: number): string {
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     <SelectItem value="Student">Student</SelectItem>
                     <SelectItem value="Payer">Payer</SelectItem>
                   </SelectContent>

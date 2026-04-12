@@ -89,7 +89,7 @@ async function fetchPayer() {
     isLoading.value = true
     error.value = null
     const response = await api.getPayer(payerId) as any
-    payer.value = response.data
+    payer.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load payer'
     toast.error('Error', { description: error.value || undefined })

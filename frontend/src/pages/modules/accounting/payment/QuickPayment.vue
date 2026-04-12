@@ -83,7 +83,7 @@ async function fetchStudent() {
     isLoading.value = true
     error.value = null
     const response = await api.getStudent(studentId) as any
-    student.value = response.data
+    student.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load student'
     toast.error('Error', { description: error.value || undefined })
@@ -97,11 +97,11 @@ async function loadOptions() {
     isLoadingOptions.value = true
     // Load cash ledgers (asset type)
     const ledgersResponse = await api.getLedgers({ perPage: 1000, type: 'asset' }) as any
-    cashLedgers.value = ledgersResponse.data.data
+    cashLedgers.value = ledgersResponse.data
 
     // Load income categories
     const categoriesResponse = await api.getCategories({ perPage: 1000, type: 'income' }) as any
-    incomeCategories.value = categoriesResponse.data.data
+    incomeCategories.value = categoriesResponse.data
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load options' })
   } finally {

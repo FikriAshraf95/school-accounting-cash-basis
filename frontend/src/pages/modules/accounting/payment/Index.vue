@@ -92,8 +92,8 @@ async function fetchTransactions() {
     if (searchQuery.value) params.search = searchQuery.value
 
     const response = await api.getTransactions(params) as any
-    transactions.value = response.data.data
-    pagination.value = response.data.meta
+    transactions.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load expense transactions'

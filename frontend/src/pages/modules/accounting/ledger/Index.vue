@@ -62,7 +62,7 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 
 // Filters
-const typeFilter = ref<string>('')
+const typeFilter = ref<string>('all')
 const searchQuery = ref('')
 
 const ledgerTypes = [
@@ -93,12 +93,12 @@ async function fetchLedgers() {
       perPage: pagination.value.perPage,
     }
 
-    if (typeFilter.value) params.type = typeFilter.value
+    if (typeFilter.value && typeFilter.value !== 'all') params.type = typeFilter.value
     if (searchQuery.value) params.search = searchQuery.value
 
     const response = await api.getLedgers(params) as any
-    ledgers.value = response.data.data
-    pagination.value = response.data.meta
+    ledgers.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load ledgers'
@@ -210,7 +210,7 @@ watch([typeFilter, searchQuery], () => {
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem v-for="type in ledgerTypes" :key="type.value" :value="type.value">
                   {{ type.label }}
                 </SelectItem>

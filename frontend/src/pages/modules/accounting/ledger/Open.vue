@@ -69,7 +69,7 @@ async function performYearBeginningOpen() {
     error.value = null
 
     const response = await api.yearBeginningOpen({ year: yearToOpen.value }) as any
-    openResult.value = response.data
+    openResult.value = response
     toast.success('Year-Beginning Open Completed', {
       description: `Fiscal year ${yearToOpen.value} has been successfully opened.`,
     })

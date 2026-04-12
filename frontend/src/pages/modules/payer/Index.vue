@@ -67,7 +67,7 @@ const error = ref<string | null>(null)
 
 // Filters
 const searchQuery = ref('')
-const selectedType = ref<string>('')
+const selectedType = ref<string>('all')
 
 const payerTypes = [
   { value: 'donor', label: 'Donor' },
@@ -87,7 +87,7 @@ onMounted(() => {
   pagination.value.perPage = perPage
   
   if (route.query.search) searchQuery.value = route.query.search as string
-  if (route.query.type) selectedType.value = route.query.type as string
+  if (route.query.type) selectedType.value = route.query.type as string || 'all'
   
   fetchPayers()
 })
@@ -103,11 +103,11 @@ async function fetchPayers() {
     }
 
     if (searchQuery.value) params.search = searchQuery.value
-    if (selectedType.value) params.type = selectedType.value
+    if (selectedType.value && selectedType.value !== 'all') params.type = selectedType.value
 
     const response = await api.getPayers(params) as any
-    payers.value = response.data.data
-    pagination.value = response.data.meta
+    payers.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load payers'
@@ -136,7 +136,7 @@ function updateQueryParams() {
     perPage: pagination.value.perPage.toString(),
   }
   if (searchQuery.value) query.search = searchQuery.value
-  if (selectedType.value) query.type = selectedType.value
+  if (selectedType.value && selectedType.value !== 'all') query.type = selectedType.value
   
   router.replace({ query })
 }
@@ -149,7 +149,7 @@ function applyFilters() {
 
 function resetFilters() {
   searchQuery.value = ''
-  selectedType.value = ''
+  selectedType.value = 'all'
   pagination.value.page = 1
   updateQueryParams()
   fetchPayers()
@@ -224,7 +224,7 @@ function formatBalance(amount: number): string {
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem 
                   v-for="type in payerTypes" 
                   :key="type.value" 

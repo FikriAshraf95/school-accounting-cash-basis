@@ -77,11 +77,11 @@ async function fetchDashboardData() {
 
     // Fetch students count
     const studentsResponse = await api.getStudents({ perPage: 1 }) as any
-    const totalStudents = studentsResponse.data.meta?.total || 0
+    const totalStudents = studentsResponse.meta?.total || 0
 
     // Fetch payers count
     const payersResponse = await api.getPayers({ perPage: 1 }) as any
-    const totalPayers = payersResponse.data.meta?.total || 0
+    const totalPayers = payersResponse.meta?.total || 0
 
     // Fetch transactions with date range (current year)
     const currentYear = new Date().getFullYear()
@@ -91,8 +91,8 @@ async function fetchDashboardData() {
       dateTo: `${currentYear}-12-31`,
     }) as any
 
-    const transactions = transactionsResponse.data.data || []
-    const totalTransactions = transactionsResponse.data.meta?.total || 0
+    const transactions = transactionsResponse.data || []
+    const totalTransactions = transactionsResponse.meta?.total || 0
 
     // Calculate totals
     let totalIncome = 0
@@ -118,7 +118,7 @@ async function fetchDashboardData() {
 
     // Get recent transactions (last 5)
     const recentResponse = await api.getTransactions({ perPage: 5 }) as any
-    const recentTransactions = recentResponse.data.data || []
+    const recentTransactions = recentResponse.data || []
 
     stats.value = {
       totalStudents,

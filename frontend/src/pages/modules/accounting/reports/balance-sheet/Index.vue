@@ -103,7 +103,7 @@ async function fetchLedgerSummary() {
 
     const year = parseInt(selectedYear.value)
     const response = await api.getLedgerSummary(year) as any
-    summaryData.value = response.data
+    summaryData.value = response
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load balance sheet'

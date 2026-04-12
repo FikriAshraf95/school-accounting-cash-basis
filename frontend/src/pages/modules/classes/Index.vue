@@ -88,8 +88,8 @@ async function fetchClasses() {
     if (searchQuery.value) params.search = searchQuery.value
 
     const response = await api.getClasses(params) as any
-    classes.value = response.data.data
-    pagination.value = response.data.meta
+    classes.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load classes'

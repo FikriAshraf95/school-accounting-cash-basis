@@ -75,7 +75,7 @@ async function fetchLedgers() {
   try {
     isLoadingLedgers.value = true
     const response = await api.getLedgers({ perPage: 100 }) as any
-    ledgers.value = response.data.data
+    ledgers.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load ledgers' })
   } finally {
@@ -88,7 +88,7 @@ async function fetchCategory() {
     isLoading.value = true
     error.value = null
     const response = await api.getCategory(categoryId.value) as any
-    const category = response.data
+    const category = response
     formData.value = {
       name: category.name,
       type: category.type,

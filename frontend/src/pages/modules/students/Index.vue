@@ -95,8 +95,8 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 
 // Filters
 const searchQuery = ref('')
-const selectedGradeId = ref<string>('')
-const selectedClassId = ref<string>('')
+const selectedGradeId = ref<string>('all')
+const selectedClassId = ref<string>('all')
 
 onMounted(async () => {
   sidebar.setPageName('Students')
@@ -118,7 +118,7 @@ onMounted(async () => {
 async function fetchGrades() {
   try {
     const response = await api.getGrades({ perPage: 100 }) as any
-    grades.value = response.data.data
+    grades.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load grades' })
   }
@@ -127,11 +127,11 @@ async function fetchGrades() {
 async function fetchClasses() {
   try {
     const params: any = { perPage: 100 }
-    if (selectedGradeId.value) {
+    if (selectedGradeId.value && selectedGradeId.value !== 'all') {
       params.gradeId = selectedGradeId.value
     }
     const response = await api.getClasses(params) as any
-    classes.value = response.data.data
+    classes.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load classes' })
   }
@@ -148,12 +148,12 @@ async function fetchStudents() {
     }
 
     if (searchQuery.value) params.search = searchQuery.value
-    if (selectedGradeId.value) params.gradeId = selectedGradeId.value
-    if (selectedClassId.value) params.classId = selectedClassId.value
+    if (selectedGradeId.value && selectedGradeId.value !== 'all') params.gradeId = selectedGradeId.value
+    if (selectedClassId.value && selectedClassId.value !== 'all') params.classId = selectedClassId.value
 
     const response = await api.getStudents(params) as any
-    students.value = response.data.data
-    pagination.value = response.data.meta
+    students.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load students'
@@ -182,8 +182,8 @@ function updateQueryParams() {
     perPage: pagination.value.perPage.toString(),
   }
   if (searchQuery.value) query.search = searchQuery.value
-  if (selectedGradeId.value) query.gradeId = selectedGradeId.value
-  if (selectedClassId.value) query.classId = selectedClassId.value
+  if (selectedGradeId.value && selectedGradeId.value !== 'all') query.gradeId = selectedGradeId.value
+  if (selectedClassId.value && selectedClassId.value !== 'all') query.classId = selectedClassId.value
   
   router.replace({ query })
 }
@@ -196,8 +196,8 @@ function applyFilters() {
 
 function resetFilters() {
   searchQuery.value = ''
-  selectedGradeId.value = ''
-  selectedClassId.value = ''
+  selectedGradeId.value = 'all'
+  selectedClassId.value = 'all'
   pagination.value.page = 1
   updateQueryParams()
   fetchStudents()
@@ -205,7 +205,7 @@ function resetFilters() {
 
 // Watch for grade change to reload classes
 watch(selectedGradeId, async () => {
-  selectedClassId.value = ''
+  selectedClassId.value = 'all'
   await fetchClasses()
 })
 
@@ -240,7 +240,7 @@ async function importStudents() {
     formData.append('file', importFile.value)
 
     const response = await api.importStudents(formData) as any
-    const { imported, skipped, errors } = response.data
+    const { imported, skipped, errors } = response
     
     toast.success('Import Complete', {
       description: `Imported: ${imported}, Skipped: ${skipped}`,
@@ -350,10 +350,10 @@ function formatBalance(amount: number): string {
                 <SelectValue placeholder="All Grades" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Grades</SelectItem>
-                <SelectItem 
-                  v-for="grade in grades" 
-                  :key="grade.id" 
+                <SelectItem value="all">All Grades</SelectItem>
+                <SelectItem
+                  v-for="grade in grades"
+                  :key="grade.id"
                   :value="String(grade.id)"
                 >
                   {{ grade.name }}
@@ -363,12 +363,12 @@ function formatBalance(amount: number): string {
           </div>
           <div class="w-full md:w-48">
             <Label class="mb-2 block text-sm font-medium">Class</Label>
-            <Select v-model="selectedClassId" :disabled="!selectedGradeId">
+            <Select v-model="selectedClassId" :disabled="selectedGradeId === 'all'">
               <SelectTrigger>
-                <SelectValue :placeholder="selectedGradeId ? 'All Classes' : 'Select grade first'" />
+                <SelectValue :placeholder="selectedGradeId !== 'all' ? 'All Classes' : 'Select grade first'" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Classes</SelectItem>
+                <SelectItem value="all">All Classes</SelectItem>
                 <SelectItem 
                   v-for="cls in classes" 
                   :key="cls.id" 

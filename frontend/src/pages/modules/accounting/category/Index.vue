@@ -64,7 +64,7 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 
 // Filters
-const typeFilter = ref<string>('')
+const typeFilter = ref<string>('all')
 const searchQuery = ref('')
 
 onMounted(() => {
@@ -86,12 +86,12 @@ async function fetchCategories() {
       perPage: pagination.value.perPage,
     }
 
-    if (typeFilter.value) params.type = typeFilter.value
+    if (typeFilter.value && typeFilter.value !== 'all') params.type = typeFilter.value
     if (searchQuery.value) params.search = searchQuery.value
 
     const response = await api.getCategories(params) as any
-    categories.value = response.data.data
-    pagination.value = response.data.meta
+    categories.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load categories'
@@ -188,7 +188,7 @@ watch([typeFilter, searchQuery], () => {
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
                 <SelectItem value="expense">Expense</SelectItem>
               </SelectContent>

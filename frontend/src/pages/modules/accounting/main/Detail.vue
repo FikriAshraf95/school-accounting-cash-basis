@@ -84,9 +84,9 @@ async function fetchBusinessInfo() {
     isLoading.value = true
     error.value = null
     const response = await api.getBusinessInfo() as any
-    businessInfo.value = response.data
+    businessInfo.value = response
     // Initialize form data with current values, converting nulls to empty strings
-    const data = response.data
+    const data = response
     formData.value = {
       ...data,
       registrationNumber: data.registrationNumber ?? '',

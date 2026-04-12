@@ -119,19 +119,19 @@ async function loadOptions() {
     isLoadingOptions.value = true
     // Load students
     const studentsResponse = await api.getStudents({ perPage: 1000, isActive: true }) as any
-    students.value = studentsResponse.data.data
+    students.value = studentsResponse.data
 
     // Load payers
     const payersResponse = await api.getPayers({ perPage: 1000, isActive: true }) as any
-    payers.value = payersResponse.data.data
+    payers.value = payersResponse.data
 
     // Load cash ledgers (asset type)
     const ledgersResponse = await api.getLedgers({ perPage: 1000, type: 'asset' }) as any
-    cashLedgers.value = ledgersResponse.data.data
+    cashLedgers.value = ledgersResponse.data
 
     // Load income categories
     const categoriesResponse = await api.getCategories({ perPage: 1000, type: 'income' }) as any
-    incomeCategories.value = categoriesResponse.data.data
+    incomeCategories.value = categoriesResponse.data
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load options' })
   } finally {
@@ -144,7 +144,7 @@ async function fetchTransaction() {
     isLoading.value = true
     error.value = null
     const response = await api.getTransaction(transactionId.value) as any
-    const transaction = response.data
+    const transaction = response
 
     formData.value = {
       transactionDate: transaction.transactionDate.split('T')[0],

@@ -54,7 +54,7 @@ async function fetchLedger() {
     isLoading.value = true
     error.value = null
     const response = await api.getLedger(ledgerId) as any
-    ledger.value = response.data
+    ledger.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load ledger'
     toast.error('Error', { description: error.value || undefined })

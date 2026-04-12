@@ -76,7 +76,7 @@ async function fetchTrialBalance() {
     }
 
     const response = await api.getTrialBalance(params) as any
-    trialBalance.value = response.data
+    trialBalance.value = response
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load trial balance'

@@ -102,7 +102,7 @@ async function fetchClass() {
     isLoading.value = true
     error.value = null
     const response = await api.getClass(classId) as any
-    cls.value = response.data
+    cls.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load class'
     toast.error('Error', { description: error.value || undefined })
@@ -116,7 +116,7 @@ async function fetchAvailableStudents() {
     const response = await api.getStudents({ perPage: 1000 }) as any
     // Filter out students already in this class
     const enrolledIds = cls.value?.students.map(s => s.id) || []
-    availableStudents.value = response.data.data.filter(
+    availableStudents.value = (response.data ?? []).filter(
       (s: any) => !enrolledIds.includes(s.id)
     )
   } catch (err: any) {

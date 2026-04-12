@@ -61,7 +61,7 @@ async function fetchGrades() {
   try {
     isLoadingGrades.value = true
     const response = await api.getGrades({ perPage: 100 }) as any
-    grades.value = response.data.data
+    grades.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load grades' })
   } finally {
@@ -74,7 +74,7 @@ async function fetchClass() {
     isLoading.value = true
     error.value = null
     const response = await api.getClass(classId.value) as any
-    const cls = response.data
+    const cls = response
     formData.value = {
       name: cls.name,
       code: cls.code,

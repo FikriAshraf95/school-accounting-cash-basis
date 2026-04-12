@@ -102,7 +102,7 @@ export function usePagination(options: UsePaginationOptions) {
 
       if (response.success) {
         if (tableConfig.value.paginate) {
-          items.value = response.payload.data;
+          items.value = response.data.payload.data;
           paginationState.value = {
             totalItems: response.payload.total,
             currentPage: response.payload.current_page,
@@ -111,7 +111,7 @@ export function usePagination(options: UsePaginationOptions) {
             to: response.payload.to || 0,
           };
         } else {
-          items.value = response.payload;
+          items.value = response.data.payload;
           paginationState.value.totalItems = items.value.length;
         }
 
@@ -119,7 +119,7 @@ export function usePagination(options: UsePaginationOptions) {
           options.onSuccess(response);
         }
       } else {
-        const errorMsg = response.error || "Failed to load data";
+        const errorMsg = response.data.error || "Failed to load data";
         error.value = errorMsg;
         if (options.onError) {
           options.onError(errorMsg);

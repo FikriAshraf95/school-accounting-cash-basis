@@ -72,7 +72,7 @@ async function performYearEndClose() {
     error.value = null
 
     const response = await api.yearEndClose({ year: yearToClose.value }) as any
-    closeResult.value = response.data
+    closeResult.value = response
     toast.success('Year-End Close Completed', {
       description: `Fiscal year ${yearToClose.value} has been successfully closed.`,
     })

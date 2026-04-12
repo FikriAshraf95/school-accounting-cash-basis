@@ -40,11 +40,11 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.post<any>('/register', payload);
 
         if (response.token) {
-          this.token = response.token;
+          this.token = response.data.token;
         }
 
         if (response.user) {
-          this.user = response.user;
+          this.user = response.data.user;
         }
 
         return { success: true };
@@ -67,11 +67,11 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.post<any>('/login', payload);
 
         if (response.token) {
-          this.token = response.token;
+          this.token = response.data.token;
         }
 
         if (response.user) {
-          this.user = response.user;
+          this.user = response.data.user;
         } else {
           await this.fetchUser();
         }
@@ -91,7 +91,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await api.get<User>('/user');
-        this.user = response;
+        this.user = response.data;
         return this.user;
       } catch (error) {
         this.user = null;

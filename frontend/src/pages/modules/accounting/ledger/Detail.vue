@@ -70,7 +70,7 @@ async function fetchLedger() {
     isLoading.value = true
     error.value = null
     const response = await api.getLedger(ledgerId.value) as any
-    const ledger = response.data
+    const ledger = response
     formData.value = {
       code: ledger.code,
       name: ledger.name,

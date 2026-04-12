@@ -46,7 +46,7 @@ async function fetchBusinessInfo() {
     isLoading.value = true
     error.value = null
     const response = await api.getBusinessInfo() as any
-    businessInfo.value = response.data
+    businessInfo.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load business information'
     toast.error('Error', { description: error.value || undefined })

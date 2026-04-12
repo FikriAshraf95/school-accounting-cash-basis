@@ -56,7 +56,7 @@ async function fetchCategory() {
     isLoading.value = true
     error.value = null
     const response = await api.getCategory(categoryId) as any
-    category.value = response.data
+    category.value = response
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load category'
     toast.error('Error', { description: error.value || undefined })

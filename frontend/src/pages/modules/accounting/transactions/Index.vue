@@ -66,7 +66,7 @@ const error = ref<string | null>(null)
 // Filters
 const dateFrom = ref('')
 const dateTo = ref('')
-const typeFilter = ref<string>('')
+const typeFilter = ref<string>('all')
 const searchQuery = ref('')
 
 const typeOptions = [
@@ -84,7 +84,7 @@ onMounted(() => {
 
   if (route.query.dateFrom) dateFrom.value = route.query.dateFrom as string
   if (route.query.dateTo) dateTo.value = route.query.dateTo as string
-  if (route.query.type) typeFilter.value = route.query.type as string
+  if (route.query.type) typeFilter.value = route.query.type as string || 'all'
   if (route.query.search) searchQuery.value = route.query.search as string
 
   fetchTransactions()
@@ -102,12 +102,12 @@ async function fetchTransactions() {
 
     if (dateFrom.value) params.dateFrom = dateFrom.value
     if (dateTo.value) params.dateTo = dateTo.value
-    if (typeFilter.value) params.type = typeFilter.value
+    if (typeFilter.value && typeFilter.value !== 'all') params.type = typeFilter.value
     if (searchQuery.value) params.search = searchQuery.value
 
     const response = await api.getTransactions(params) as any
-    transactions.value = response.data.data
-    pagination.value = response.data.meta
+    transactions.value = response.data ?? []
+    pagination.value = response.meta ?? pagination.value
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load transactions'
@@ -137,7 +137,7 @@ function updateQueryParams() {
   }
   if (dateFrom.value) query.dateFrom = dateFrom.value
   if (dateTo.value) query.dateTo = dateTo.value
-  if (typeFilter.value) query.type = typeFilter.value
+  if (typeFilter.value && typeFilter.value !== 'all') query.type = typeFilter.value
   if (searchQuery.value) query.search = searchQuery.value
 
   router.replace({ query })
@@ -152,7 +152,7 @@ function applyFilters() {
 function resetFilters() {
   dateFrom.value = ''
   dateTo.value = ''
-  typeFilter.value = ''
+  typeFilter.value = 'all'
   searchQuery.value = ''
   pagination.value.page = 1
   updateQueryParams()
@@ -237,7 +237,7 @@ function getTypeBadgeColor(type: string): any {
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem v-for="opt in typeOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </SelectItem>

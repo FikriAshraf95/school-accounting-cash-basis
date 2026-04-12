@@ -72,7 +72,7 @@ async function fetchPayer() {
     isLoading.value = true
     error.value = null
     const response = await api.getPayer(payerId.value) as any
-    const payer = response.data
+    const payer = response
     formData.value = {
       payerCode: payer.payerCode,
       name: payer.name,

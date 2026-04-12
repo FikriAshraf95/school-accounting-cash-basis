@@ -263,7 +263,7 @@ const routes = [
       // Ledgers / Chart of Accounts
       {
         name: "ledger",
-        path: "ledgers/list",
+        path: "ledgers",
         component: () => import("@/pages/modules/accounting/ledger/Index.vue"),
       },
       {

@@ -61,8 +61,8 @@ const isLoadingFilters = ref(false)
 const error = ref<string | null>(null)
 
 // Filters
-const selectedGradeId = ref<string>('')
-const selectedClassId = ref<string>('')
+const selectedGradeId = ref<string>('all')
+const selectedClassId = ref<string>('all')
 const dateFrom = ref<Date | null>(null)
 const dateTo = ref<Date | null>(null)
 
@@ -75,24 +75,24 @@ onMounted(async () => {
 async function fetchGrades() {
   try {
     const response = await api.getGrades({ perPage: 100 }) as any
-    grades.value = response.data.data
+    grades.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load grades' })
   }
 }
 
 async function fetchClasses() {
-  if (!selectedGradeId.value) {
+  if (!selectedGradeId.value || selectedGradeId.value === 'all') {
     classes.value = []
     return
   }
   try {
     isLoadingFilters.value = true
-    const response = await api.getClasses({ 
-      perPage: 100, 
-      gradeId: Number(selectedGradeId.value) 
+    const response = await api.getClasses({
+      perPage: 100,
+      gradeId: Number(selectedGradeId.value)
     }) as any
-    classes.value = response.data.data
+    classes.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load classes' })
   } finally {
@@ -107,13 +107,13 @@ async function fetchReport() {
 
     const params: any = {}
 
-    if (selectedGradeId.value) params.gradeId = selectedGradeId.value
-    if (selectedClassId.value) params.classId = selectedClassId.value
+    if (selectedGradeId.value && selectedGradeId.value !== 'all') params.gradeId = selectedGradeId.value
+    if (selectedClassId.value && selectedClassId.value !== 'all') params.classId = selectedClassId.value
     if (dateFrom.value) params.dateFrom = dateFrom.value.toISOString()
     if (dateTo.value) params.dateTo = dateTo.value.toISOString()
 
     const response = await api.getStudentsReport(params) as any
-    reportData.value = response.data
+    reportData.value = response ?? []
   } catch (err: any) {
     if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load student report'
@@ -125,7 +125,7 @@ async function fetchReport() {
 
 // Watch for grade change to reload classes and clear selected class
 watch(selectedGradeId, async () => {
-  selectedClassId.value = ''
+  selectedClassId.value = 'all'
   await fetchClasses()
 })
 
@@ -134,8 +134,8 @@ function applyFilters() {
 }
 
 function resetFilters() {
-  selectedGradeId.value = ''
-  selectedClassId.value = ''
+  selectedGradeId.value = 'all'
+  selectedClassId.value = 'all'
   dateFrom.value = null
   dateTo.value = null
   fetchReport()
@@ -191,7 +191,7 @@ const totals = computed(() => {
                 <SelectValue placeholder="All Grades" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Grades</SelectItem>
+                <SelectItem value="all">All Grades</SelectItem>
                 <SelectItem 
                   v-for="grade in grades" 
                   :key="grade.id" 
@@ -204,12 +204,12 @@ const totals = computed(() => {
           </div>
           <div class="w-full md:w-48">
             <Label class="mb-2 block text-sm font-medium">Class</Label>
-            <Select v-model="selectedClassId" :disabled="!selectedGradeId || isLoadingFilters">
+            <Select v-model="selectedClassId" :disabled="selectedGradeId === 'all' || isLoadingFilters">
               <SelectTrigger>
-                <SelectValue :placeholder="selectedGradeId ? 'All Classes' : 'Select grade first'" />
+                <SelectValue :placeholder="selectedGradeId !== 'all' ? 'All Classes' : 'Select grade first'" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Classes</SelectItem>
+                <SelectItem value="all">All Classes</SelectItem>
                 <SelectItem 
                   v-for="cls in classes" 
                   :key="cls.id" 

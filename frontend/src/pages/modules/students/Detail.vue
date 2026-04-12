@@ -44,8 +44,8 @@ const formData = ref({
   email: '',
   phone: '',
   address: '',
-  gradeId: '',
-  classId: '',
+  gradeId: 'none',
+  classId: 'none',
   isActive: true,
 })
 
@@ -69,7 +69,7 @@ async function fetchGrades() {
   try {
     isLoadingGrades.value = true
     const response = await api.getGrades({ perPage: 100 }) as any
-    grades.value = response.data.data
+    grades.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load grades' })
   } finally {
@@ -78,17 +78,17 @@ async function fetchGrades() {
 }
 
 async function fetchClasses() {
-  if (!formData.value.gradeId) {
+  if (!formData.value.gradeId || formData.value.gradeId === 'none') {
     classes.value = []
     return
   }
   try {
     isLoadingClasses.value = true
-    const response = await api.getClasses({ 
-      perPage: 100, 
-      gradeId: Number(formData.value.gradeId) 
+    const response = await api.getClasses({
+      perPage: 100,
+      gradeId: Number(formData.value.gradeId)
     }) as any
-    classes.value = response.data.data
+    classes.value = response.data ?? []
   } catch (err: any) {
     toast.error('Error', { description: 'Failed to load classes' })
   } finally {
@@ -101,15 +101,15 @@ async function fetchStudent() {
     isLoading.value = true
     error.value = null
     const response = await api.getStudent(studentId.value) as any
-    const student = response.data
+    const student = response
     formData.value = {
       studentId: student.studentId,
       name: student.name,
       email: student.email || '',
       phone: student.phone || '',
       address: student.address || '',
-      gradeId: student.gradeId ? String(student.gradeId) : '',
-      classId: student.classId ? String(student.classId) : '',
+      gradeId: student.gradeId ? String(student.gradeId) : 'none',
+      classId: student.classId ? String(student.classId) : 'none',
       isActive: student.isActive,
     }
     // Fetch classes for the selected grade
@@ -125,7 +125,7 @@ async function fetchStudent() {
 // Watch for grade change to reload classes and clear selected class
 watch(() => formData.value.gradeId, async (newGradeId, oldGradeId) => {
   if (newGradeId !== oldGradeId) {
-    formData.value.classId = ''
+    formData.value.classId = 'none'
     await fetchClasses()
   }
 })
@@ -145,8 +145,8 @@ async function saveStudent() {
     isSaving.value = true
     const payload = {
       ...formData.value,
-      gradeId: formData.value.gradeId ? Number(formData.value.gradeId) : null,
-      classId: formData.value.classId ? Number(formData.value.classId) : null,
+      gradeId: formData.value.gradeId && formData.value.gradeId !== 'none' ? Number(formData.value.gradeId) : null,
+      classId: formData.value.classId && formData.value.classId !== 'none' ? Number(formData.value.classId) : null,
       email: formData.value.email || null,
       phone: formData.value.phone || null,
       address: formData.value.address || null,
@@ -270,7 +270,7 @@ function goBack() {
                   <SelectValue :placeholder="isLoadingGrades ? 'Loading...' : 'Select grade'" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Grade</SelectItem>
+                  <SelectItem value="none">No Grade</SelectItem>
                   <SelectItem 
                     v-for="grade in grades" 
                     :key="grade.id" 
@@ -283,12 +283,12 @@ function goBack() {
             </div>
             <div class="space-y-2">
               <Label for="class">Class</Label>
-              <Select v-model="formData.classId" :disabled="!formData.gradeId || isLoadingClasses">
+              <Select v-model="formData.classId" :disabled="formData.gradeId === 'none' || isLoadingClasses">
                 <SelectTrigger>
-                  <SelectValue :placeholder="isLoadingClasses ? 'Loading...' : (formData.gradeId ? 'Select class' : 'Select grade first')" />
+                  <SelectValue :placeholder="isLoadingClasses ? 'Loading...' : (formData.gradeId !== 'none' ? 'Select class' : 'Select grade first')" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Class</SelectItem>
+                  <SelectItem value="none">No Class</SelectItem>
                   <SelectItem 
                     v-for="cls in classes" 
                     :key="cls.id" 
