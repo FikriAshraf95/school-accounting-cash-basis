@@ -175,60 +175,60 @@ const routes = [
       },
 
       // Income/Deposits - Week 4
-      // {
-      //   name: "deposit",
-      //   path: "income",
-      //   component: () => import("@/pages/modules/accounting/deposit/Index.vue"),
-      // },
-      // {
-      //   name: "create_deposit",
-      //   path: "income/create",
-      //   component: () => import("@/pages/modules/accounting/deposit/Detail.vue"),
-      // },
-      // {
-      //   name: "edit_deposit",
-      //   path: "income/edit/:id",
-      //   component: () => import("@/pages/modules/accounting/deposit/Detail.vue"),
-      // },
-      // {
-      //   name: "view_deposit",
-      //   path: "income/view/:id",
-      //   component: () => import("@/pages/modules/accounting/deposit/View.vue"),
-      // },
+      {
+        name: "deposit",
+        path: "income",
+        component: () => import("@/pages/modules/accounting/deposit/Index.vue"),
+      },
+      {
+        name: "create_deposit",
+        path: "income/create",
+        component: () => import("@/pages/modules/accounting/deposit/Detail.vue"),
+      },
+      {
+        name: "edit_deposit",
+        path: "income/edit/:id",
+        component: () => import("@/pages/modules/accounting/deposit/Detail.vue"),
+      },
+      {
+        name: "view_deposit",
+        path: "income/view/:id",
+        component: () => import("@/pages/modules/accounting/deposit/View.vue"),
+      },
 
       // Expenses/Payments - Week 4
-      // {
-      //   name: "payment",
-      //   path: "expenses",
-      //   component: () => import("@/pages/modules/accounting/payment/Index.vue"),
-      // },
-      // {
-      //   name: "create_payment",
-      //   path: "expenses/create",
-      //   component: () => import("@/pages/modules/accounting/payment/Detail.vue"),
-      // },
-      // {
-      //   name: "edit_payment",
-      //   path: "expenses/edit/:id",
-      //   component: () => import("@/pages/modules/accounting/payment/Detail.vue"),
-      // },
-      // {
-      //   name: "view_payment",
-      //   path: "expenses/view/:id",
-      //   component: () => import("@/pages/modules/accounting/payment/View.vue"),
-      // },
-      // {
-      //   name: "quick_payment",
-      //   path: "expenses/quick/:id",
-      //   component: () => import("@/pages/modules/accounting/payment/QuickPayment.vue"),
-      // },
+      {
+        name: "payment",
+        path: "expenses",
+        component: () => import("@/pages/modules/accounting/payment/Index.vue"),
+      },
+      {
+        name: "create_payment",
+        path: "expenses/create",
+        component: () => import("@/pages/modules/accounting/payment/Detail.vue"),
+      },
+      {
+        name: "edit_payment",
+        path: "expenses/edit/:id",
+        component: () => import("@/pages/modules/accounting/payment/Detail.vue"),
+      },
+      {
+        name: "view_payment",
+        path: "expenses/view/:id",
+        component: () => import("@/pages/modules/accounting/payment/View.vue"),
+      },
+      {
+        name: "quick_payment",
+        path: "expenses/quick/:id",
+        component: () => import("@/pages/modules/accounting/payment/QuickPayment.vue"),
+      },
 
       // All Transactions (Optional - for viewing only) - Week 4
-      // {
-      //   name: "transactions_all",
-      //   path: "transactions",
-      //   component: () => import("@/pages/modules/accounting/transactions/Index.vue"),
-      // },
+      {
+        name: "transactions_all",
+        path: "transactions",
+        component: () => import("@/pages/modules/accounting/transactions/Index.vue"),
+      },
 
       // Reports - Week 5
       // {
