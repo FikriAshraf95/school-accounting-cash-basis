@@ -32,13 +32,15 @@ const sidebar = useSidebarStore()
 const router = useRouter()
 const route = useRoute()
 
-interface Ledger {
+interface Category {
   id: number
-  code: string
   name: string
-  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
-  category: string | null
-  balance: number
+  type: 'income' | 'expense'
+  ledgerId: number
+  ledgerName: string
+  ledgerCode: string
+  description: string | null
+  requiresStudent: boolean
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -51,7 +53,7 @@ interface PaginationMeta {
   lastPage: number
 }
 
-const ledgers = ref<Ledger[]>([])
+const categories = ref<Category[]>([])
 const pagination = ref<PaginationMeta>({
   total: 0,
   page: 1,
@@ -65,25 +67,16 @@ const error = ref<string | null>(null)
 const typeFilter = ref<string>('')
 const searchQuery = ref('')
 
-const ledgerTypes = [
-  { value: 'asset', label: 'Asset', color: 'default' },
-  { value: 'liability', label: 'Liability', color: 'secondary' },
-  { value: 'equity', label: 'Equity', color: 'outline' },
-  { value: 'revenue', label: 'Revenue', color: 'default' },
-  { value: 'expense', label: 'Expense', color: 'destructive' },
-]
-
 onMounted(() => {
-  sidebar.setPageName('Chart of Accounts')
-  // Get initial page from query params
+  sidebar.setPageName('Categories')
   const page = parseInt(route.query.page as string) || 1
   const perPage = parseInt(route.query.perPage as string) || 15
   pagination.value.page = page
   pagination.value.perPage = perPage
-  fetchLedgers()
+  fetchCategories()
 })
 
-async function fetchLedgers() {
+async function fetchCategories() {
   try {
     isLoading.value = true
     error.value = null
@@ -96,12 +89,12 @@ async function fetchLedgers() {
     if (typeFilter.value) params.type = typeFilter.value
     if (searchQuery.value) params.search = searchQuery.value
 
-    const response = await api.getLedgers(params) as any
-    ledgers.value = response.data.data
+    const response = await api.getCategories(params) as any
+    categories.value = response.data.data
     pagination.value = response.data.meta
   } catch (err: any) {
     if (isCancel(err)) return
-    error.value = err?.response?.data?.detail || 'Failed to load ledgers'
+    error.value = err?.response?.data?.detail || 'Failed to load categories'
     toast.error('Error', { description: error.value || undefined })
   } finally {
     isLoading.value = false
@@ -111,14 +104,14 @@ async function fetchLedgers() {
 function handlePageChange(newPage: number) {
   pagination.value.page = newPage
   updateQueryParams()
-  fetchLedgers()
+  fetchCategories()
 }
 
 function handlePageSizeChange(newPageSize: number) {
   pagination.value.perPage = newPageSize
   pagination.value.page = 1
   updateQueryParams()
-  fetchLedgers()
+  fetchCategories()
 }
 
 function updateQueryParams() {
@@ -132,39 +125,24 @@ function updateQueryParams() {
 }
 
 function goToCreate() {
-  router.push({ name: 'create_ledger' })
+  router.push({ name: 'create_category' })
 }
 
 function goToView(id: number) {
-  router.push({ name: 'view_ledger', params: { id } })
+  router.push({ name: 'view_category', params: { id } })
 }
 
 function goToEdit(id: number) {
-  router.push({ name: 'edit_ledger', params: { id } })
+  router.push({ name: 'edit_category', params: { id } })
 }
 
-function getTypeBadgeColor(type: string): any {
-  const typeMap: Record<string, any> = {
-    asset: 'default',
-    liability: 'secondary',
-    equity: 'outline',
-    revenue: 'default',
-    expense: 'destructive',
-  }
-  return typeMap[type] || 'default'
+function getTypeBadgeVariant(type: string) {
+  return type === 'income' ? 'default' : 'destructive'
 }
 
-function formatBalance(balance: number): string {
-  return new Intl.NumberFormat('en-MY', {
-    style: 'currency',
-    currency: 'MYR',
-  }).format(balance)
-}
-
-// Watch for filter changes
 watch([typeFilter, searchQuery], () => {
   pagination.value.page = 1
-  fetchLedgers()
+  fetchCategories()
 })
 </script>
 
@@ -173,12 +151,12 @@ watch([typeFilter, searchQuery], () => {
     <!-- Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-3xl font-bold tracking-tight">Chart of Accounts</h2>
-        <p class="text-muted-foreground">Manage your ledger accounts and chart of accounts.</p>
+        <h2 class="text-3xl font-bold tracking-tight">Categories</h2>
+        <p class="text-muted-foreground">Manage income and expense categories.</p>
       </div>
       <Button @click="goToCreate">
         <iconify-icon icon="lucide:plus" class="mr-2 h-4 w-4" />
-        Add Ledger
+        Add Category
       </Button>
     </div>
 
@@ -196,7 +174,7 @@ watch([typeFilter, searchQuery], () => {
           <div class="flex-1">
             <Input
               v-model="searchQuery"
-              placeholder="Search by code or name..."
+              placeholder="Search by name..."
               class="max-w-sm"
             >
               <template #prefix>
@@ -211,9 +189,8 @@ watch([typeFilter, searchQuery], () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All Types</SelectItem>
-                <SelectItem v-for="type in ledgerTypes" :key="type.value" :value="type.value">
-                  {{ type.label }}
-                </SelectItem>
+                <SelectItem value="income">Income</SelectItem>
+                <SelectItem value="expense">Expense</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -224,7 +201,7 @@ watch([typeFilter, searchQuery], () => {
     <!-- Table -->
     <Card>
       <CardHeader>
-        <CardTitle>Ledger Accounts</CardTitle>
+        <CardTitle>Category List</CardTitle>
       </CardHeader>
       <CardContent>
         <!-- Loading State -->
@@ -233,13 +210,13 @@ watch([typeFilter, searchQuery], () => {
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="ledgers.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
-          <iconify-icon icon="lucide:book-open" class="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 class="text-lg font-semibold">No ledgers found</h3>
-          <p class="text-sm text-muted-foreground">Get started by creating a new ledger account.</p>
+        <div v-else-if="categories.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+          <iconify-icon icon="lucide:tag" class="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 class="text-lg font-semibold">No categories found</h3>
+          <p class="text-sm text-muted-foreground">Get started by creating a new category.</p>
           <Button class="mt-4" @click="goToCreate">
             <iconify-icon icon="lucide:plus" class="mr-2 h-4 w-4" />
-            Add Ledger
+            Add Category
           </Button>
         </div>
 
@@ -248,27 +225,33 @@ watch([typeFilter, searchQuery], () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead class="text-right">Balance</TableHead>
+                <TableHead>Ledger</TableHead>
+                <TableHead>Requires Student</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead class="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="ledger in ledgers" :key="ledger.id">
-                <TableCell class="font-medium">{{ ledger.code }}</TableCell>
-                <TableCell>{{ ledger.name }}</TableCell>
+              <TableRow v-for="category in categories" :key="category.id">
+                <TableCell class="font-medium">{{ category.name }}</TableCell>
                 <TableCell>
-                  <Badge :variant="getTypeBadgeColor(ledger.type)">
-                    {{ ledger.type.charAt(0).toUpperCase() + ledger.type.slice(1) }}
+                  <Badge :variant="getTypeBadgeVariant(category.type)">
+                    {{ category.type.charAt(0).toUpperCase() + category.type.slice(1) }}
                   </Badge>
                 </TableCell>
-                <TableCell class="text-right">{{ formatBalance(ledger.balance) }}</TableCell>
+                <TableCell class="text-sm text-muted-foreground">
+                  {{ category.ledgerCode }} — {{ category.ledgerName }}
+                </TableCell>
                 <TableCell>
-                  <Badge :variant="ledger.isActive ? 'default' : 'secondary'">
-                    {{ ledger.isActive ? 'Active' : 'Inactive' }}
+                  <Badge :variant="category.requiresStudent ? 'default' : 'secondary'">
+                    {{ category.requiresStudent ? 'Yes' : 'No' }}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge :variant="category.isActive ? 'default' : 'secondary'">
+                    {{ category.isActive ? 'Active' : 'Inactive' }}
                   </Badge>
                 </TableCell>
                 <TableCell class="text-right">
@@ -276,7 +259,7 @@ watch([typeFilter, searchQuery], () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      @click="goToView(ledger.id)"
+                      @click="goToView(category.id)"
                       title="View"
                     >
                       <iconify-icon icon="lucide:eye" class="h-4 w-4" />
@@ -284,7 +267,7 @@ watch([typeFilter, searchQuery], () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      @click="goToEdit(ledger.id)"
+                      @click="goToEdit(category.id)"
                       title="Edit"
                     >
                       <iconify-icon icon="lucide:pencil" class="h-4 w-4" />
@@ -297,7 +280,7 @@ watch([typeFilter, searchQuery], () => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="!isLoading && ledgers.length > 0" class="mt-4 flex justify-end">
+        <div v-if="!isLoading && categories.length > 0" class="mt-4 flex justify-end">
           <Pagination
             :total-count="pagination.total"
             :total-pages="pagination.lastPage"

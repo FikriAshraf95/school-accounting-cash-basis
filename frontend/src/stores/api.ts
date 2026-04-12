@@ -1,5 +1,88 @@
 import { useAPI } from '@/services/api';
 
+// ============================================
+// Request payload types (based on API.md)
+// ============================================
+
+export interface CreateStudentPayload {
+  studentId: string
+  name: string
+  classId?: number | null
+  gradeId?: number | null
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  isActive?: boolean
+}
+
+export interface TransactionItem {
+  categoryId: number
+  amount: number
+  description?: string | null
+  quantity?: number
+  unitPrice?: number
+}
+
+export interface CreateTransactionPayload {
+  transactionDate: string
+  type: 'income' | 'expense'
+  transactableType?: 'Student' | 'Payer'
+  studentId?: number | null
+  payerId?: number | null
+  paymentMethod?: string | null
+  referenceNumber?: string | null
+  description?: string | null
+  cashLedgerId: number
+  items: TransactionItem[]
+}
+
+export interface CreatePayerPayload {
+  payerCode?: string
+  name: string
+  type: 'donor' | 'sponsor' | 'vendor' | 'supplier' | 'general' | 'government'
+  category?: 'individual' | 'corporate' | 'government' | 'ngo'
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  isRecurring?: boolean
+  notes?: string | null
+  isActive?: boolean
+}
+
+export interface CreateClassPayload {
+  name: string
+  code: string
+  gradeId: number
+  section?: string | null
+  description?: string | null
+  capacity?: number
+  feeAmount?: number
+  isActive?: boolean
+}
+
+export interface CreateLedgerPayload {
+  code: string
+  name: string
+  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
+  category?: string | null
+  isActive?: boolean
+}
+
+export interface CreateCategoryPayload {
+  name: string
+  type: 'income' | 'expense'
+  ledgerId: number
+  description?: string | null
+  requiresStudent?: boolean
+  isActive?: boolean
+}
+
+export interface YearPayload {
+  year: number
+}
+
+// ============================================
+
 export const api = {
   // ============================================
   // Auth
@@ -75,12 +158,12 @@ export const api = {
     return await http.get(`/students/${id}`);
   },
 
-  async createStudent(data: any) {
+  async createStudent(data: CreateStudentPayload) {
     const http = useAPI();
     return await http.post('/students', data);
   },
 
-  async updateStudent(id: number, data: any) {
+  async updateStudent(id: number, data: Partial<CreateStudentPayload>) {
     const http = useAPI();
     return await http.put(`/students/${id}`, data);
   },
@@ -102,11 +185,7 @@ export const api = {
 
   async importStudents(data: FormData) {
     const http = useAPI();
-    return await http.post('/students/import', data, undefined, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return await http.post('/students/import', data);
   },
 
   // ============================================
@@ -150,12 +229,12 @@ export const api = {
     return await http.get(`/classes/${id}`);
   },
 
-  async createClass(data: any) {
+  async createClass(data: CreateClassPayload) {
     const http = useAPI();
     return await http.post('/classes', data);
   },
 
-  async updateClass(id: number, data: any) {
+  async updateClass(id: number, data: Partial<CreateClassPayload>) {
     const http = useAPI();
     return await http.put(`/classes/${id}`, data);
   },
@@ -188,12 +267,12 @@ export const api = {
     return await http.get(`/transactions/${id}`);
   },
 
-  async createTransaction(data: any) {
+  async createTransaction(data: CreateTransactionPayload) {
     const http = useAPI();
     return await http.post('/transactions', data);
   },
 
-  async updateTransaction(id: number, data: any) {
+  async updateTransaction(id: number, data: Partial<CreateTransactionPayload>) {
     const http = useAPI();
     return await http.put(`/transactions/${id}`, data);
   },
@@ -221,12 +300,12 @@ export const api = {
     return await http.get(`/categories/${id}`);
   },
 
-  async createCategory(data: any) {
+  async createCategory(data: CreateCategoryPayload) {
     const http = useAPI();
     return await http.post('/categories', data);
   },
 
-  async updateCategory(id: number, data: any) {
+  async updateCategory(id: number, data: Partial<CreateCategoryPayload>) {
     const http = useAPI();
     return await http.put(`/categories/${id}`, data);
   },
@@ -249,12 +328,12 @@ export const api = {
     return await http.get(`/ledgers/${id}`);
   },
 
-  async createLedger(data: any) {
+  async createLedger(data: CreateLedgerPayload) {
     const http = useAPI();
     return await http.post('/ledgers', data);
   },
 
-  async updateLedger(id: number, data: any) {
+  async updateLedger(id: number, data: Partial<Omit<CreateLedgerPayload, 'type'>>) {
     const http = useAPI();
     return await http.put(`/ledgers/${id}`, data);
   },
@@ -274,12 +353,12 @@ export const api = {
     return await http.get(`/ledgers/summary/${year}`);
   },
 
-  async yearEndClose(data: any) {
+  async yearEndClose(data: YearPayload) {
     const http = useAPI();
     return await http.post('/ledgers/year-end-close', data);
   },
 
-  async yearBeginningOpen(data: any) {
+  async yearBeginningOpen(data: YearPayload) {
     const http = useAPI();
     return await http.post('/ledgers/year-beginning-open', data);
   },
@@ -297,12 +376,12 @@ export const api = {
     return await http.get(`/payers/${id}`);
   },
 
-  async createPayer(data: any) {
+  async createPayer(data: CreatePayerPayload) {
     const http = useAPI();
     return await http.post('/payers', data);
   },
 
-  async updatePayer(id: number, data: any) {
+  async updatePayer(id: number, data: Partial<CreatePayerPayload>) {
     const http = useAPI();
     return await http.put(`/payers/${id}`, data);
   },

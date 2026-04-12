@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
+import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -135,6 +136,7 @@ async function fetchDashboardData() {
       expenses: monthlyExpenses,
     }
   } catch (err: any) {
+    if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load dashboard data'
     toast.error('Error', { description: error.value || undefined })
   } finally {

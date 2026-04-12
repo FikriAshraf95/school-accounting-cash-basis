@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
+import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -69,6 +70,11 @@ onMounted(() => {
   fetchClasses()
 })
 
+watch(searchQuery, () => {
+  pagination.value.page = 1
+  fetchClasses()
+})
+
 async function fetchClasses() {
   try {
     isLoading.value = true
@@ -79,10 +85,13 @@ async function fetchClasses() {
       perPage: pagination.value.perPage,
     }
 
+    if (searchQuery.value) params.search = searchQuery.value
+
     const response = await api.getClasses(params) as any
     classes.value = response.data.data
     pagination.value = response.data.meta
   } catch (err: any) {
+    if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load classes'
     toast.error('Error', { description: error.value || undefined })
   } finally {

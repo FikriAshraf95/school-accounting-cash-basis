@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.token || !!state.user,
+    isAuthenticated: (state) => !!state.token && !!state.user,
     userRole: (state) => state.user?.role || null,
     permissions: (state) => state.user?.permissions || [],
   },
@@ -65,8 +65,6 @@ export const useAuthStore = defineStore('auth', {
       try {
 
         const response = await api.post<any>('/login', payload);
-
-        console.log('response: ',response);
 
         if (response.token) {
           this.token = response.token;

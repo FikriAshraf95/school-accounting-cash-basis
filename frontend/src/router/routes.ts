@@ -1,7 +1,12 @@
+import type { RouteLocationNormalized, NavigationGuardNext } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
 // Authentication guard
-const requireAuth = async (to: any, from: any, next: any) => {
+const requireAuth = async (
+  _to: RouteLocationNormalized,
+  _from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
   const authStore = useAuthStore();
   const isAuth = authStore.isAuthenticated || await authStore.checkAuth();
 
@@ -12,7 +17,11 @@ const requireAuth = async (to: any, from: any, next: any) => {
   }
 };
 
-const redirectIfAuthenticated = async (to: any, from: any, next: any) => {
+const redirectIfAuthenticated = async (
+  _to: RouteLocationNormalized,
+  _from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
   const authStore = useAuthStore();
   const isAuth = authStore.isAuthenticated || await authStore.checkAuth();
   if (isAuth) {
@@ -170,7 +179,7 @@ const routes = [
       },
       {
         name: "edit_main",
-        path: "main/edit/:id",
+        path: "main/edit",
         component: () => import("@/pages/modules/accounting/main/Detail.vue"),
       },
 
@@ -271,6 +280,11 @@ const routes = [
         name: "view_ledger",
         path: "ledgers/view/:id",
         component: () => import("@/pages/modules/accounting/ledger/View.vue"),
+      },
+      {
+        name: "categories_list",
+        path: "category",
+        component: () => import("@/pages/modules/accounting/category/Index.vue"),
       },
       {
         name: "create_category",

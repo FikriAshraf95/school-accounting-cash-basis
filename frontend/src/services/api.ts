@@ -221,3 +221,6 @@ export const cancelRequest = (method: HttpMethod, url: string, baseUrl?: string)
 // Export a default instance for simple usage
 const api = useAPI();
 export default api;
+
+// Re-export isCancel so pages don't need to import axios directly
+export { isCancel } from 'axios';

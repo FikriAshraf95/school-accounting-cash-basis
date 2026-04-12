@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
+import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -77,6 +78,7 @@ async function fetchTrialBalance() {
     const response = await api.getTrialBalance(params) as any
     trialBalance.value = response.data
   } catch (err: any) {
+    if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load trial balance'
     toast.error('Error', { description: error.value || undefined })
   } finally {

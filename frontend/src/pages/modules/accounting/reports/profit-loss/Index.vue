@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
+import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -97,6 +98,7 @@ async function fetchLedgerSummary() {
     const response = await api.getLedgerSummary(year) as any
     summaryData.value = response.data
   } catch (err: any) {
+    if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load profit and loss report'
     toast.error('Error', { description: error.value || undefined })
   } finally {

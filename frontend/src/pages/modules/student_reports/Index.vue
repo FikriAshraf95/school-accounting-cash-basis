@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
+import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -114,6 +115,7 @@ async function fetchReport() {
     const response = await api.getStudentsReport(params) as any
     reportData.value = response.data
   } catch (err: any) {
+    if (isCancel(err)) return
     error.value = err?.response?.data?.detail || 'Failed to load student report'
     toast.error('Error', { description: error.value || undefined })
   } finally {
