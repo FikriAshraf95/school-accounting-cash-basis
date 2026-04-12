@@ -117,17 +117,17 @@ A Vue 3 SPA consuming the School Accounting REST API. Handles student management
 - Payers list with search and pagination. Payer create/edit/view.
 
 #### Milestone 6 — Students
-- [ ] `pages/modules/students/Index.vue` — table (name, grade, class, email) with search input, grade/class filter selects, Pagination; CSV import button → `POST /students/import` (multipart) → toast with imported/skipped counts
-- [ ] `pages/modules/students/Detail.vue` — create/edit form (name, email, phone, grade select, class select); save
-- [ ] `pages/modules/students/View.vue` — student card + recent transactions list + assign-to-class button (uses `assignStudentToClass()`)
+- [x] `pages/modules/students/Index.vue` — table (name, grade, class, email) with search input, grade/class filter selects, Pagination; CSV import button → `POST /students/import` (multipart) → toast with imported/skipped counts
+- [x] `pages/modules/students/Detail.vue` — create/edit form (name, email, phone, grade select, class select); save
+- [x] `pages/modules/students/View.vue` — student card + recent transactions list + assign-to-class button (uses `assignStudentToClass()`)
 
 #### Milestone 7 — Payers
-- [ ] `pages/modules/payer/Index.vue` — table (name, contact) with search + Pagination
-- [ ] `pages/modules/payer/Detail.vue` — create/edit form (name, contact info); save
-- [ ] `pages/modules/payer/View.vue` — payer card + transaction history list
+- [x] `pages/modules/payer/Index.vue` — table (name, contact) with search + Pagination
+- [x] `pages/modules/payer/Detail.vue` — create/edit form (name, contact info); save
+- [x] `pages/modules/payer/View.vue` — payer card + transaction history list
 
 #### Milestone 8 — Student Reports
-- [ ] `pages/modules/student_reports/Index.vue` — filter bar (grade select, class select, DatePicker range); table of student transactions; uses `GET /students/report`
+- [x] `pages/modules/student_reports/Index.vue` — filter bar (grade select, class select, DatePicker range); table of student transactions; uses `GET /students/report`
 
 ---
 
@@ -142,19 +142,19 @@ A Vue 3 SPA consuming the School Accounting REST API. Handles student management
 - All-transactions read-only list with type filter.
 
 #### Milestone 9 — Income (Deposit)
-- [ ] `pages/modules/accounting/deposit/Index.vue` — table (date, ref no, student/payer name, total) with DatePicker filter + Pagination
-- [ ] `pages/modules/accounting/deposit/Detail.vue` — form: date, student or payer select, cash ledger select, dynamic line items (+ / − rows: category select + amount + description); save → `POST /transactions`
-- [ ] `pages/modules/accounting/deposit/View.vue` — summary card + line items table; Reverse button → `POST /transactions/{id}/reverse` with AlertDialog confirmation
+- [x] `pages/modules/accounting/deposit/Index.vue` — table (date, ref no, student/payer name, total) with DatePicker filter + Pagination
+- [x] `pages/modules/accounting/deposit/Detail.vue` — form: date, student or payer select, cash ledger select, dynamic line items (+ / − rows: category select + amount + description); save → `POST /transactions`
+- [x] `pages/modules/accounting/deposit/View.vue` — summary card + line items table; Reverse button → `POST /transactions/{id}/reverse` with AlertDialog confirmation
 
 #### Milestone 10 — Expenses (Payment)
-- [ ] `pages/modules/accounting/payment/Index.vue` — same pattern as deposit Index
-- [ ] `pages/modules/accounting/payment/Detail.vue` — same pattern as deposit Detail (transaction type = expense)
-- [ ] `pages/modules/accounting/payment/View.vue` — same pattern as deposit View
-- [ ] `pages/modules/accounting/payment/QuickPayment.vue` — minimal form pre-filled with student data; single line item; fast save
-- [ ] Add `reverseTransaction(id)` to `stores/api.ts` → `POST /transactions/{id}/reverse`
+- [x] `pages/modules/accounting/payment/Index.vue` — same pattern as deposit Index
+- [x] `pages/modules/accounting/payment/Detail.vue` — same pattern as deposit Detail (transaction type = expense)
+- [x] `pages/modules/accounting/payment/View.vue` — same pattern as deposit View
+- [x] `pages/modules/accounting/payment/QuickPayment.vue` — minimal form pre-filled with student data; single line item; fast save
+- [x] Add `reverseTransaction(id)` to `stores/api.ts` → `POST /transactions/{id}/reverse`
 
 #### Milestone 11 — All Transactions
-- [ ] `pages/modules/accounting/transactions/Index.vue` — combined list with type column (income/expense); filter by type + DatePicker range; read-only (no create button)
+- [x] `pages/modules/accounting/transactions/Index.vue` — combined list with type column (income/expense); filter by type + DatePicker range; read-only (no create button)
 
 ---
 
@@ -171,28 +171,28 @@ A Vue 3 SPA consuming the School Accounting REST API. Handles student management
 - Dashboard fleshed out with live stats and charts.
 
 #### Milestone 12 — API Store Extensions (Reports)
-- [ ] Add `getTrialBalance(year?)` → `GET /ledgers/reports/trial-balance`
-- [ ] Add `getLedgerSummary(year)` → `GET /ledgers/summary/{year}`
-- [ ] Add `getJournalEntries(params)` → `GET /journal-entries`
-- [ ] Add `yearEndClose(data)` → `POST /ledgers/year-end-close`
-- [ ] Add `yearBeginningOpen(data)` → `POST /ledgers/year-beginning-open`
+- [x] Add `getTrialBalance(year?)` → `GET /ledgers/reports/trial-balance`
+- [x] Add `getLedgerSummary(year)` → `GET /ledgers/summary/{year}`
+- [x] Add `getJournalEntries(params)` → `GET /journal-entries`
+- [x] Add `yearEndClose(data)` → `POST /ledgers/year-end-close`
+- [x] Add `yearBeginningOpen(data)` → `POST /ledgers/year-beginning-open`
 
 #### Milestone 13 — Reports Pages
-- [ ] `pages/modules/accounting/reports/Index.vue` — grid of report cards (Trial Balance, Balance Sheet, Profit & Loss, Student Report)
-- [ ] `pages/modules/accounting/reports/trial-balance/Index.vue` — year select; table of accounts with debit/credit columns and totals row; uses `getTrialBalance(year)`
-- [ ] `pages/modules/accounting/reports/profit-loss/Index.vue` — year select; income vs expense ledger groups from `getLedgerSummary(year)`; net result row
-- [ ] `pages/modules/accounting/reports/balance-sheet/Index.vue` — year select; asset / liability / equity groups from `getLedgerSummary(year)`
+- [x] `pages/modules/accounting/reports/Index.vue` — grid of report cards (Trial Balance, Balance Sheet, Profit & Loss, Student Report)
+- [x] `pages/modules/accounting/reports/trial-balance/Index.vue` — year select; table of accounts with debit/credit columns and totals row; uses `getTrialBalance(year)`
+- [x] `pages/modules/accounting/reports/profit-loss/Index.vue` — year select; income vs expense ledger groups from `getLedgerSummary(year)`; net result row
+- [x] `pages/modules/accounting/reports/balance-sheet/Index.vue` — year select; asset / liability / equity groups from `getLedgerSummary(year)`
 
 #### Milestone 14 — Year-End Pages
-- [ ] `pages/modules/accounting/ledger/Close.vue` — year select + AlertDialog confirmation; calls `yearEndClose()`; reuse `YearEndClosing.vue` component where applicable; toast on success/error
-- [ ] `pages/modules/accounting/ledger/Open.vue` — year select + AlertDialog confirmation; calls `yearBeginningOpen()`; toast on success/error
+- [x] `pages/modules/accounting/ledger/Close.vue` — year select + AlertDialog confirmation; calls `yearEndClose()`; reuse `YearEndClosing.vue` component where applicable; toast on success/error
+- [x] `pages/modules/accounting/ledger/Open.vue` — year select + AlertDialog confirmation; calls `yearBeginningOpen()`; toast on success/error
 
 #### Milestone 15 — Dashboard & Polish
-- [ ] Flesh out `pages/dashboard/Index.vue` — stat cards (total students, total payers, recent transactions, net balance); Chart1 or Chart2 for income vs expense trend
-- [ ] Enable auth route guards globally in `router/routes.ts`
-- [ ] Call `sidebar.setPageName('Title')` in `onMounted` on every page
-- [ ] Add Skeleton loading states on all list pages (`components/ui/skeleton/`)
-- [ ] Show error Alert (`components/ui/alert/`) on API failure instead of blank page
+- [x] Flesh out `pages/dashboard/Index.vue` — stat cards (total students, total payers, recent transactions, net balance); Chart1 or Chart2 for income vs expense trend
+- [x] Enable auth route guards globally in `router/routes.ts`
+- [x] Call `sidebar.setPageName('Title')` in `onMounted` on every page
+- [x] Add Skeleton loading states on all list pages (`components/ui/skeleton/`)
+- [x] Show error Alert (`components/ui/alert/`) on API failure instead of blank page
 
 ---
 

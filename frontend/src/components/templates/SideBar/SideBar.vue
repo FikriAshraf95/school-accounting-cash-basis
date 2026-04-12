@@ -89,24 +89,24 @@ const navigation = ref([
         icon: "lucide:list",
         href: "/accounting/transactions",
       },
-      // {
-      //   name: "index_reports",
-      //   displayName: "Reports",
-      //   icon: "lucide:file-text",
-      //   href: "#",
-      // },
+      {
+        name: "index_reports",
+        displayName: "Reports",
+        icon: "lucide:file-text",
+        href: "#",
+      },
       {
         name: "ledger",
         displayName: "Chart of Accounts",
         icon: "lucide:list-tree",
         href: "#",
       },
-      // {
-      //   name: "close_ledger",
-      //   displayName: "Year-End Closing",
-      //   icon: "lucide:calendar-check",
-      //   href: "#",
-      // },
+      {
+        name: "close_ledger",
+        displayName: "Year-End Closing",
+        icon: "lucide:calendar-check",
+        href: "#",
+      },
     ],
   },
   

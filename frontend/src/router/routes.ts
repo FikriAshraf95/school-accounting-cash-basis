@@ -231,26 +231,26 @@ const routes = [
       },
 
       // Reports - Week 5
-      // {
-      //   name: "index_reports",
-      //   path: "reports",
-      //   component: () => import("@/pages/modules/accounting/reports/Index.vue"),
-      // },
-      // {
-      //   name: "balance_sheet_report",
-      //   path: "reports/balance-sheet",
-      //   component: () => import("@/pages/modules/accounting/reports/balance-sheet/Index.vue"),
-      // },
-      // {
-      //   name: "profit_loss_report",
-      //   path: "reports/profit-loss",
-      //   component: () => import("@/pages/modules/accounting/reports/profit-loss/Index.vue"),
-      // },
-      // {
-      //   name: "trial_balance_report",
-      //   path: "reports/trial-balance",
-      //   component: () => import("@/pages/modules/accounting/reports/trial-balance/Index.vue"),
-      // },
+      {
+        name: "index_reports",
+        path: "reports",
+        component: () => import("@/pages/modules/accounting/reports/Index.vue"),
+      },
+      {
+        name: "balance_sheet_report",
+        path: "reports/balance-sheet",
+        component: () => import("@/pages/modules/accounting/reports/balance-sheet/Index.vue"),
+      },
+      {
+        name: "profit_loss_report",
+        path: "reports/profit-loss",
+        component: () => import("@/pages/modules/accounting/reports/profit-loss/Index.vue"),
+      },
+      {
+        name: "trial_balance_report",
+        path: "reports/trial-balance",
+        component: () => import("@/pages/modules/accounting/reports/trial-balance/Index.vue"),
+      },
       // Ledgers / Chart of Accounts
       {
         name: "ledger",
@@ -288,16 +288,16 @@ const routes = [
         component: () => import("@/pages/modules/accounting/category/View.vue"),
       },
       // Year-end operations - Week 5
-      // {
-      //   name: "close_ledger",
-      //   path: "close-ledger",
-      //   component: () => import("@/pages/modules/accounting/ledger/Close.vue"),
-      // },
-      // {
-      //   name: "open_ledger",
-      //   path: "open-ledger",
-      //   component: () => import("@/pages/modules/accounting/ledger/Open.vue"),
-      // },
+      {
+        name: "close_ledger",
+        path: "close-ledger",
+        component: () => import("@/pages/modules/accounting/ledger/Close.vue"),
+      },
+      {
+        name: "open_ledger",
+        path: "open-ledger",
+        component: () => import("@/pages/modules/accounting/ledger/Open.vue"),
+      },
     ],
   },
   
