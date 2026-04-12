@@ -32,7 +32,7 @@ async function loginRequest() {
     password: data.value.password,
   });
 
-  if (result) {
+  if (result.success) {
     loader.value = false;
     router.push({ name: "dashboard" });
   } else {

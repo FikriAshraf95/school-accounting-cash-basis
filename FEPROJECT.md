@@ -60,17 +60,17 @@ A Vue 3 SPA consuming the School Accounting REST API. Handles student management
 - `.env.development` API base URL confirmed matching backend port.
 
 #### Milestone 1 — Auth Wiring
-- [ ] Verify `Login.vue` / `Register.vue` POST to correct endpoints and store token
-- [ ] Enable `beforeEnter: requireAuth` on all protected routes in `routes.ts`
-- [ ] Enable `beforeEnter: redirectIfAuthenticated` on `/login` and `/register`
-- [ ] Confirm `logout()` in auth store clears token and navigates to `/login`
-- [ ] Verify 401 interceptor in `services/api.ts` clears auth and redirects to login
+- [x] Verify `Login.vue` / `Register.vue` POST to correct endpoints and store token
+- [x] Enable `beforeEnter: requireAuth` on all protected routes in `routes.ts`
+- [x] Enable `beforeEnter: redirectIfAuthenticated` on `/login` and `/register`
+- [x] Confirm `logout()` in auth store clears token and navigates to `/login`
+- [x] Verify 401 interceptor in `services/api.ts` clears auth and redirects to login
 
 #### Milestone 2 — Shell & Navigation
-- [ ] Create `pages/dashboard/Index.vue` — welcome card + stat placeholders (students count, transactions count)
-- [ ] Wire sidebar nav items to their named routes (students, payer, classes, accounting sections)
-- [ ] Confirm `AuthLayout.vue` renders Header + Sidebar + MainContent for all protected routes
-- [ ] Confirm `VITE_API_BASE_URL` in `.env.development` matches backend port
+- [x] Create `pages/dashboard/Index.vue` — welcome card + stat placeholders (students count, transactions count)
+- [x] Wire sidebar nav items to their named routes (students, payer, classes, accounting sections)
+- [x] Confirm `AuthLayout.vue` renders Header + Sidebar + MainContent for all protected routes
+- [x] Confirm `VITE_API_BASE_URL` in `.env.development` matches backend port
 
 ---
 
@@ -86,23 +86,23 @@ A Vue 3 SPA consuming the School Accounting REST API. Handles student management
 - `stores/api.ts` extended with missing methods.
 
 #### Milestone 3 — API Store Extensions
-- [ ] Add `getGrades()` to `stores/api.ts` → `GET /grades` (used as dropdown in Class and Student forms)
-- [ ] Add `getPayers(params)`, `getPayer(id)`, `createPayer(data)`, `updatePayer(id, data)`, `deletePayer(id)` to `stores/api.ts`
-- [ ] Add `getBusinessInfo()`, `updateBusinessInfo(data)` to `stores/api.ts`
+- [x] Add `getGrades()` to `stores/api.ts` → `GET /grades` (used as dropdown in Class and Student forms)
+- [x] Add `getPayers(params)`, `getPayer(id)`, `createPayer(data)`, `updatePayer(id, data)`, `deletePayer(id)` to `stores/api.ts`
+- [x] Add `getBusinessInfo()`, `updateBusinessInfo(data)` to `stores/api.ts`
 
 #### Milestone 4 — Business Info & Ledgers
-- [ ] `pages/modules/accounting/main/View.vue` — display business name, address, contact; Edit button → `edit_main`
-- [ ] `pages/modules/accounting/main/Detail.vue` — edit form (name, address, phone, email) + save → `PUT /business-info`
-- [ ] `pages/modules/accounting/ledger/Index.vue` — paginated table (code, name, type, balance); link to create/view
-- [ ] `pages/modules/accounting/ledger/Detail.vue` — shared create/edit form (code, name, type select, normal balance); save → POST or PUT
-- [ ] `pages/modules/accounting/ledger/View.vue` — read-only ledger card (code, name, type, balance); Edit / Back buttons
+- [x] `pages/modules/accounting/main/View.vue` — display business name, address, contact; Edit button → `edit_main`
+- [x] `pages/modules/accounting/main/Detail.vue` — edit form (name, address, phone, email) + save → `PUT /business-info`
+- [x] `pages/modules/accounting/ledger/Index.vue` — paginated table (code, name, type, balance); link to create/view
+- [x] `pages/modules/accounting/ledger/Detail.vue` — shared create/edit form (code, name, type select, normal balance); save → POST or PUT
+- [x] `pages/modules/accounting/ledger/View.vue` — read-only ledger card (code, name, type, balance); Edit / Back buttons
 
 #### Milestone 5 — Categories & Classes
-- [ ] `pages/modules/accounting/category/Detail.vue` — create/edit form (name, type select, ledger select); save
-- [ ] `pages/modules/accounting/category/View.vue` — read-only category detail; Edit / Back buttons
-- [ ] `pages/modules/classes/Index.vue` — table (name, grade, student count) with search and Pagination
-- [ ] `pages/modules/classes/Detail.vue` — create/edit form (name, grade select via `getGrades()`)
-- [ ] `pages/modules/classes/View.vue` — class card + enrolled students list; assign/remove student buttons
+- [x] `pages/modules/accounting/category/Detail.vue` — create/edit form (name, type select, ledger select); save
+- [x] `pages/modules/accounting/category/View.vue` — read-only category detail; Edit / Back buttons
+- [x] `pages/modules/classes/Index.vue` — table (name, grade, student count) with search and Pagination
+- [x] `pages/modules/classes/Detail.vue` — create/edit form (name, grade select via `getGrades()`)
+- [x] `pages/modules/classes/View.vue` — class card + enrolled students list; assign/remove student buttons
 
 ---
 
