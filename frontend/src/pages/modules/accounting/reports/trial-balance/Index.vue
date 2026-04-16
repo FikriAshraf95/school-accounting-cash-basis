@@ -62,7 +62,7 @@ onMounted(() => {
   sidebar.setPageName('trial_balance_report')
   const currentYear = new Date().getFullYear()
   selectedYear.value = currentYear.toString()
-  fetchTrialBalance()
+  // fetchTrialBalance()
 })
 
 async function fetchTrialBalance() {

@@ -86,7 +86,7 @@ onMounted(() => {
   sidebar.setPageName('profit_loss_report')
   const currentYear = new Date().getFullYear()
   selectedYear.value = currentYear.toString()
-  fetchLedgerSummary()
+  // fetchLedgerSummary()
 })
 
 async function fetchLedgerSummary() {

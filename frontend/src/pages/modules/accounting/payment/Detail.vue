@@ -207,6 +207,18 @@ async function saveTransaction() {
     toast.error('Validation Error', { description: 'Please select a cash ledger' })
     return
   }
+  if (!formData.value.transactableType || formData.value.transactableType === 'none') {
+    toast.error('Validation Error', { description: 'Please select a Pay To type (Student or Payer)' })
+    return
+  }
+  if (formData.value.transactableType === 'Student' && !formData.value.studentId) {
+    toast.error('Validation Error', { description: 'Please select a student' })
+    return
+  }
+  if (formData.value.transactableType === 'Payer' && !formData.value.payerId) {
+    toast.error('Validation Error', { description: 'Please select a payer' })
+    return
+  }
 
   // Validate line items
   const validItems = lineItems.value.filter(item => item.categoryId && item.amount > 0)
@@ -219,7 +231,7 @@ async function saveTransaction() {
     isSaving.value = true
     const payload = {
       ...formData.value,
-      transactableType: formData.value.transactableType === 'none' ? null : formData.value.transactableType,
+      transactableType: formData.value.transactableType,
       studentId: formData.value.transactableType === 'Student' && formData.value.studentId
         ? parseInt(formData.value.studentId)
         : null,
@@ -339,7 +351,7 @@ function formatAmount(amount: number): string {
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="space-y-2">
-              <Label>Pay To (Optional)</Label>
+              <Label>Pay To <span class="text-red-500">*</span></Label>
               <div class="flex gap-2">
                 <Select v-model="formData.transactableType" class="w-32">
                   <SelectTrigger>

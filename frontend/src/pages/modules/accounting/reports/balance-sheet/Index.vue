@@ -93,7 +93,7 @@ onMounted(() => {
   sidebar.setPageName('balance_sheet_report')
   const currentYear = new Date().getFullYear()
   selectedYear.value = currentYear.toString()
-  fetchLedgerSummary()
+  // fetchLedgerSummary()
 })
 
 async function fetchLedgerSummary() {

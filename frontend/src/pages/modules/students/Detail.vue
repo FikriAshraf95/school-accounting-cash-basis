@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
@@ -59,10 +59,11 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   sidebar.setPageName(isEditing.value ? 'Edit Student' : 'Create Student')
-  await fetchGrades()
   if (isEditing.value) {
     await fetchStudent()
   }
+  await fetchClasses()
+  await fetchGrades()
 })
 
 async function fetchGrades() {
@@ -112,8 +113,7 @@ async function fetchStudent() {
       classId: student.classId ? String(student.classId) : 'none',
       isActive: student.isActive,
     }
-    // Fetch classes for the selected grade
-    await fetchClasses()
+    // fetchClasses will be called automatically by the gradeId watcher
   } catch (err: any) {
     error.value = err?.response?.data?.detail || 'Failed to load student'
     toast.error('Error', { description: error.value || undefined })
@@ -122,13 +122,10 @@ async function fetchStudent() {
   }
 }
 
-// Watch for grade change to reload classes and clear selected class
-watch(() => formData.value.gradeId, async (newGradeId, oldGradeId) => {
-  if (newGradeId !== oldGradeId) {
-    formData.value.classId = 'none'
-    await fetchClasses()
-  }
-})
+async function handleGradeChange() {
+  formData.value.classId = 'none'
+  await fetchClasses()
+}
 
 async function saveStudent() {
   // Validation
@@ -265,7 +262,7 @@ function goBack() {
           <div class="grid gap-4 sm:grid-cols-2">
             <div class="space-y-2">
               <Label for="grade">Grade</Label>
-              <Select v-model="formData.gradeId" :disabled="isLoadingGrades">
+              <Select v-model="formData.gradeId" :disabled="isLoadingGrades" @update:modelValue="handleGradeChange">
                 <SelectTrigger>
                   <SelectValue :placeholder="isLoadingGrades ? 'Loading...' : 'Select grade'" />
                 </SelectTrigger>

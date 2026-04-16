@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
@@ -18,6 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 const sidebar = useSidebarStore()
 const route = useRoute()
@@ -43,21 +51,31 @@ interface Category {
   name: string
 }
 
+interface LineItem {
+  categoryId: string
+  amount: number
+  description: string
+  quantity: number
+  unitPrice: number
+}
+
 const student = ref<Student | null>(null)
 const cashLedgers = ref<Ledger[]>([])
 const incomeCategories = ref<Category[]>([])
 
 const formData = ref({
   transactionDate: new Date().toISOString().split('T')[0],
-  type: 'income' as 'income' | 'expense',
   paymentMethod: 'cash',
   referenceNumber: '',
   description: '',
   cashLedgerId: '',
-  categoryId: '',
-  amount: 0,
-  itemDescription: '',
 })
+
+const lineItems = ref<LineItem[]>([
+  { categoryId: '', amount: 0, description: '', quantity: 1, unitPrice: 0 },
+])
+
+const totalAmount = computed(() => lineItems.value.reduce((sum, item) => sum + (item.amount || 0), 0))
 
 const isLoading = ref(true)
 const isSaving = ref(false)
@@ -95,11 +113,9 @@ async function fetchStudent() {
 async function loadOptions() {
   try {
     isLoadingOptions.value = true
-    // Load cash ledgers (asset type)
     const ledgersResponse = await api.getLedgers({ perPage: 1000, type: 'asset' }) as any
     cashLedgers.value = ledgersResponse.data
 
-    // Load income categories
     const categoriesResponse = await api.getCategories({ perPage: 1000, type: 'income' }) as any
     incomeCategories.value = categoriesResponse.data
   } catch (err: any) {
@@ -109,8 +125,22 @@ async function loadOptions() {
   }
 }
 
+function addLineItem() {
+  lineItems.value.push({ categoryId: '', amount: 0, description: '', quantity: 1, unitPrice: 0 })
+}
+
+function removeLineItem(index: number) {
+  if (lineItems.value.length > 1) {
+    lineItems.value.splice(index, 1)
+  }
+}
+
+function updateLineItemAmount(index: number) {
+  const item = lineItems.value[index]
+  item.amount = (item.quantity || 0) * (item.unitPrice || 0)
+}
+
 async function savePayment() {
-  // Validation
   if (!formData.value.transactionDate) {
     toast.error('Validation Error', { description: 'Transaction date is required' })
     return
@@ -119,12 +149,10 @@ async function savePayment() {
     toast.error('Validation Error', { description: 'Please select a cash ledger' })
     return
   }
-  if (!formData.value.categoryId) {
-    toast.error('Validation Error', { description: 'Please select a category' })
-    return
-  }
-  if (!formData.value.amount || formData.value.amount <= 0) {
-    toast.error('Validation Error', { description: 'Please enter a valid amount' })
+
+  const validItems = lineItems.value.filter(item => item.categoryId && item.amount > 0)
+  if (validItems.length === 0) {
+    toast.error('Validation Error', { description: 'At least one valid line item is required' })
     return
   }
 
@@ -140,21 +168,17 @@ async function savePayment() {
       referenceNumber: formData.value.referenceNumber || null,
       description: formData.value.description || null,
       cashLedgerId: parseInt(formData.value.cashLedgerId),
-      items: [
-        {
-          categoryId: parseInt(formData.value.categoryId),
-          amount: formData.value.amount,
-          description: formData.value.itemDescription,
-          quantity: 1,
-          unitPrice: formData.value.amount,
-        }
-      ],
+      items: validItems.map(item => ({
+        categoryId: parseInt(item.categoryId),
+        amount: item.amount,
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
     }
 
     await api.createTransaction(payload)
     toast.success('Success', { description: 'Payment recorded successfully' })
-    
-    // Redirect to student view
     router.push({ name: 'student_view', params: { id: studentId } })
   } catch (err: any) {
     const message = err?.response?.data?.detail || 'Failed to record payment'
@@ -218,7 +242,7 @@ function formatAmount(amount: number): string {
             <div>
               <p class="text-lg font-semibold">{{ student?.name }}</p>
               <p class="text-sm text-muted-foreground">
-                {{ student?.studentId }} 
+                {{ student?.studentId }}
                 <span v-if="student?.className">• {{ student.className }}</span>
               </p>
             </div>
@@ -292,55 +316,97 @@ function formatAmount(amount: number): string {
         </CardContent>
       </Card>
 
-      <!-- Line Item -->
+      <!-- Line Items -->
       <Card>
-        <CardHeader>
-          <CardTitle>Payment Item</CardTitle>
-          <CardDescription>Enter payment category and amount</CardDescription>
+        <CardHeader class="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Payment Items</CardTitle>
+            <CardDescription>Add payment categories and amounts</CardDescription>
+          </div>
+          <Button type="button" variant="outline" @click="addLineItem">
+            <iconify-icon icon="lucide:plus" class="mr-2 h-4 w-4" />
+            Add Item
+          </Button>
         </CardHeader>
-        <CardContent class="space-y-4">
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="space-y-2">
-              <Label for="category">Category <span class="text-red-500">*</span></Label>
-              <Select v-model="formData.categoryId">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="cat in incomeCategories" :key="cat.id" :value="String(cat.id)">
-                    {{ cat.name }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div class="space-y-2">
-              <Label for="amount">Amount <span class="text-red-500">*</span></Label>
-              <Input
-                id="amount"
-                v-model.number="formData.amount"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <Label for="itemDescription">Item Description</Label>
-            <Input
-              id="itemDescription"
-              v-model="formData.itemDescription"
-              placeholder="Description for this payment item..."
-            />
-          </div>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="w-[200px]">Category <span class="text-red-500">*</span></TableHead>
+                <TableHead class="w-[100px]">Qty</TableHead>
+                <TableHead class="w-[150px]">Unit Price</TableHead>
+                <TableHead class="w-[150px]">Amount</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead class="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="(item, index) in lineItems" :key="index">
+                <TableCell>
+                  <Select v-model="item.categoryId">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem v-for="cat in incomeCategories" :key="cat.id" :value="String(cat.id)">
+                        {{ cat.name }}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Input
+                    v-model.number="item.quantity"
+                    type="number"
+                    min="1"
+                    @input="updateLineItemAmount(index)"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    v-model.number="item.unitPrice"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    @input="updateLineItemAmount(index)"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    v-model.number="item.amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    readonly
+                    class="bg-muted"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    v-model="item.description"
+                    placeholder="Item description..."
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    @click="removeLineItem(index)"
+                    :disabled="lineItems.length <= 1"
+                  >
+                    <iconify-icon icon="lucide:trash-2" class="h-4 w-4 text-destructive" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
 
           <!-- Total -->
           <div class="mt-4 flex justify-end border-t pt-4">
             <div class="text-right">
               <p class="text-sm text-muted-foreground">Total Amount</p>
-              <p class="text-2xl font-bold text-green-600">{{ formatAmount(formData.amount) }}</p>
+              <p class="text-2xl font-bold text-green-600">{{ formatAmount(totalAmount) }}</p>
             </div>
           </div>
         </CardContent>

@@ -205,6 +205,10 @@ function formatAmount(amount: number, type: string): string {
           <iconify-icon icon="lucide:arrow-left" class="mr-2 h-4 w-4" />
           Back
         </Button>
+        <Button v-if="!isLoading && !error" variant="default" @click="router.push({ name: 'quick_payment', params: { id: studentId } })">
+          <iconify-icon icon="lucide:credit-card" class="mr-2 h-4 w-4" />
+          Quick Payment
+        </Button>
         <Button v-if="!isLoading && !error" @click="goToEdit">
           <iconify-icon icon="lucide:edit" class="mr-2 h-4 w-4" />
           Edit

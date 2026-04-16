@@ -57,7 +57,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Login with Sanctum
     async login(payload: { email: string; password: string }) {
       this.isLoading = true;
       const api = useAPI();
@@ -67,11 +66,11 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.post<any>('/login', payload);
 
         if (response.token) {
-          this.token = response.data.token;
+          this.token = response.token;
         }
 
         if (response.user) {
-          this.user = response.data.user;
+          this.user = response.user;
         } else {
           await this.fetchUser();
         }
@@ -91,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await api.get<User>('/user');
-        this.user = response.data;
+        this.user = response;
         return this.user;
       } catch (error) {
         this.user = null;

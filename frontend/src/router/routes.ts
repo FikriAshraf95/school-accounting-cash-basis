@@ -204,6 +204,11 @@ const routes = [
         path: "income/view/:id",
         component: () => import("@/pages/modules/accounting/deposit/View.vue"),
       },
+      {
+        name: "quick_payment",
+        path: "income/quick/:id",
+        component: () => import("@/pages/modules/accounting/deposit/QuickPayment.vue"),
+      },
 
       // Expenses/Payments - Week 4
       {
@@ -225,11 +230,6 @@ const routes = [
         name: "view_payment",
         path: "expenses/view/:id",
         component: () => import("@/pages/modules/accounting/payment/View.vue"),
-      },
-      {
-        name: "quick_payment",
-        path: "expenses/quick/:id",
-        component: () => import("@/pages/modules/accounting/payment/QuickPayment.vue"),
       },
 
       // All Transactions (Optional - for viewing only) - Week 4

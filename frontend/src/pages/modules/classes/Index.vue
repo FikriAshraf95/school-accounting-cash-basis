@@ -5,6 +5,7 @@ import { useSidebarStore } from '@/stores/sidebar'
 import { api } from '@/stores/api'
 import { isCancel } from '@/services/api'
 import { toast } from 'vue-sonner'
+import { useDebounceFn } from '@vueuse/core'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,10 +71,6 @@ onMounted(() => {
   fetchClasses()
 })
 
-watch(searchQuery, () => {
-  pagination.value.page = 1
-  fetchClasses()
-})
 
 async function fetchClasses() {
   try {
@@ -98,6 +95,15 @@ async function fetchClasses() {
     isLoading.value = false
   }
 }
+
+const debouncedFetchClasses = useDebounceFn(async () => {
+  pagination.value.page = 1
+  await fetchClasses()
+}, 1000)
+
+watch(searchQuery, () => {
+  debouncedFetchClasses()
+}, { immediate: false })
 
 function handlePageChange(newPage: number) {
   pagination.value.page = newPage
